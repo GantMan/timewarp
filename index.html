@@ -9,10 +9,15 @@
       <video id="mystery" height="100%" autoplay></video>
       <canvas id="detection" style="position: absolute; left: 0"></canvas>
     </div>
-
-    <script type="module">
-
+    <div>
+      <canvas id="result"></canvas>
+    </div>
+    <script>
+      const resultCanv = document.getElementById('result')
       let counter = 0
+      let chunkSize = 8
+      let numChannels = 3
+      let warped
 
       async function setupWebcam(videoRef) {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -58,23 +63,44 @@
 
       async function scanLine(videoRef, camDetails) {
         const [ctx, imgHeight, imgWidth] = camDetails
-        const myTensor = tf.browser.fromPixels(videoRef)
+        const myTensor = tf.browser.fromPixels(videoRef, numChannels)
+
+        const cut = tf.slice(
+          myTensor,
+          [counter, 0, 0],
+          [chunkSize, ctx.canvas.width, numChannels]
+        )
+        myTensor.dispose()
+
+        // Concat or create tensor
+        let newWarp
+        if (counter > 0) {
+          newWarp = tf.concat([warped, cut])
+          tf.dispose([cut, warped])
+        } else {
+          newWarp = cut
+        }
+        warped = newWarp
+
+        await tf.browser.toPixels(warped, resultCanv)
 
         // clear everything each round
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         ctx.strokeStyle = '#0F0'
-        ctx.lineWidth = 4        
-        ctx.beginPath();
-        ctx.moveTo(0, counter);
-        ctx.lineTo(ctx.canvas.width, counter);
-        ctx.stroke();        
+        ctx.lineWidth = chunkSize
+        ctx.beginPath()
+        ctx.moveTo(0, counter)
+        ctx.lineTo(ctx.canvas.width, counter)
+        ctx.stroke()
 
-        counter = (counter + 1) % ctx.canvas.height
+        // counter = (counter + chunkSize) % ctx.canvas.height
+        counter = counter + chunkSize
 
-        // Loop forever
-        requestAnimationFrame(() => {
-          scanLine(videoRef, camDetails)
-        })
+        if (counter < ctx.canvas.height) {
+          requestAnimationFrame(() => {
+            scanLine(videoRef, camDetails)
+          })
+        }
       }
 
       doStuff()
