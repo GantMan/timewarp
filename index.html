@@ -7,17 +7,18 @@
     <h1>TimeWarp</h1>
     <div style="position: relative; height: 80vh">
       <video id="mystery" height="100%" autoplay></video>
+      <canvas id="result" style="position: absolute; left: 0"></canvas>
       <canvas id="detection" style="position: absolute; left: 0"></canvas>
     </div>
     <div>
-      <canvas id="result"></canvas>
+      <button onclick="performScan()">Scan</button>
     </div>
     <script>
       const resultCanv = document.getElementById('result')
       let counter = 0
       let chunkSize = 8
       let numChannels = 3
-      let warped
+      let warped, mysteryVideo, camDetails
 
       async function setupWebcam(videoRef) {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -51,14 +52,17 @@
         }
       }
 
-      async function doStuff() {
+      async function setupStuff() {
         try {
-          const mysteryVideo = document.getElementById('mystery')
-          const camDetails = await setupWebcam(mysteryVideo)
-          scanLine(mysteryVideo, camDetails)
+          mysteryVideo = document.getElementById('mystery')
+          camDetails = await setupWebcam(mysteryVideo)
         } catch (e) {
           console.error(e)
         }
+      }
+
+      function performScan() {
+        scanLine(mysteryVideo, camDetails)
       }
 
       async function scanLine(videoRef, camDetails) {
@@ -103,7 +107,7 @@
         }
       }
 
-      doStuff()
+      setupStuff()
     </script>
   </body>
 </html>
