@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.0.0/dist/tf.min.js"></script>
+  </head>
+  <body>
+    <h1>TimeWarp</h1>
+    <div style="position: relative; height: 80vh">
+      <video id="mystery" height="100%" autoplay></video>
+      <canvas id="detection" style="position: absolute; left: 0"></canvas>
+    </div>
+
+    <script type="module">
+      async function setupWebcam(videoRef) {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          const webcamStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: 'user',
+            },
+          })
+
+          if ('srcObject' in videoRef) {
+            videoRef.srcObject = webcamStream
+          } else {
+            videoRef.src = window.URL.createObjectURL(webcamStream)
+          }
+
+          return new Promise((resolve, _) => {
+            videoRef.onloadedmetadata = () => {
+              // Prep Canvas
+              const detection = document.getElementById('detection')
+              const ctx = detection.getContext('2d')
+              const imgWidth = videoRef.clientWidth
+              const imgHeight = videoRef.clientHeight
+              detection.width = imgWidth
+              detection.height = imgHeight
+              ctx.font = '16px sans-serif'
+              ctx.textBaseline = 'top'
+              resolve([ctx, imgHeight, imgWidth])
+            }
+          })
+        } else {
+          alert('No webcam - sorry!')
+        }
+      }
+
+
+      async function doStuff() {
+        try {
+          const mysteryVideo = document.getElementById('mystery')
+          const camDetails = await setupWebcam(mysteryVideo)
+          scanLine(mysteryVideo, camDetails)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+
+      async function scanLine(videoRef, camDetails) {
+        const [ctx, imgHeight, imgWidth] = camDetails
+        const myTensor = tf.browser.fromPixels(videoRef)
+
+        // clear everything each round
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+        // Loop forever
+        requestAnimationFrame(() => {
+          scanLine(videoRef, camDetails)
+        })
+      }
+
+      doStuff()
+    </script>
+  </body>
+</html>
