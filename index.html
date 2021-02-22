@@ -11,6 +11,9 @@
     </div>
 
     <script type="module">
+
+      let counter = 0
+
       async function setupWebcam(videoRef) {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           const webcamStream = await navigator.mediaDevices.getUserMedia({
@@ -35,8 +38,6 @@
               const imgHeight = videoRef.clientHeight
               detection.width = imgWidth
               detection.height = imgHeight
-              ctx.font = '16px sans-serif'
-              ctx.textBaseline = 'top'
               resolve([ctx, imgHeight, imgWidth])
             }
           })
@@ -44,7 +45,6 @@
           alert('No webcam - sorry!')
         }
       }
-
 
       async function doStuff() {
         try {
@@ -62,6 +62,14 @@
 
         // clear everything each round
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        ctx.strokeStyle = '#0F0'
+        ctx.lineWidth = 4        
+        ctx.beginPath();
+        ctx.moveTo(0, counter);
+        ctx.lineTo(ctx.canvas.width, counter);
+        ctx.stroke();        
+
+        counter = (counter + 1) % ctx.canvas.height
 
         // Loop forever
         requestAnimationFrame(() => {
