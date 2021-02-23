@@ -12,12 +12,25 @@
     </div>
     <div>
       <button onclick="performScan()">Scan</button>
+      <label for="chunkSize">Chunk Size:</label>
+      <select name="chunkSize" id="chunky">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4">4</option>
+        <option value="8" selected>8</option>
+        <option value="16">16</option>
+        <option value="32">32</option>
+        <option value="64">64</option>
+      </select>
+      <label for="color">Colors:</label>
+      <select name="color" id="colorSize">
+        <option value="1">1</option>
+        <option value="3" selected>3</option>
+      </select>
     </div>
     <script>
       const resultCanv = document.getElementById('result')
       let counter = 0
-      let chunkSize = 8
-      let numChannels = 3
       let warped, mysteryVideo, camDetails
 
       async function setupWebcam(videoRef) {
@@ -62,14 +75,17 @@
       }
 
       function performScan() {
+        counter = 0
         scanLine(mysteryVideo, camDetails)
       }
 
       async function scanLine(videoRef, camDetails) {
         const [ctx, imgHeight, imgWidth] = camDetails
-        const myTensor = tf.browser.fromPixels(videoRef, numChannels)
+        const chunkSize = +document.getElementById('chunky').value
+        const numChannels = +document.getElementById('colorSize').value
 
         const cut = tf.tidy(() => {
+          const myTensor = tf.browser.fromPixels(videoRef, numChannels)
           const resizedTensor = tf.image
             .resizeBilinear(
               myTensor,
@@ -78,10 +94,16 @@
             )
             .div(255)
 
+          // Never overslice
+          const calculatedChunk =
+            counter + chunkSize > resizedTensor.shape[0]
+              ? resizedTensor.shape[0] - counter
+              : chunkSize
+
           return tf.slice(
             resizedTensor,
             [counter, 0, 0],
-            [chunkSize, ctx.canvas.width, numChannels]
+            [calculatedChunk, ctx.canvas.clientWidth, numChannels]
           )
         })
 
@@ -106,13 +128,16 @@
         ctx.lineTo(ctx.canvas.width, counter)
         ctx.stroke()
 
-        // counter = (counter + chunkSize) % ctx.canvas.height
         counter = counter + chunkSize
 
-        if (counter < ctx.canvas.height) {
+        if (counter <= ctx.canvas.height) {
           requestAnimationFrame(() => {
             scanLine(videoRef, camDetails)
           })
+        } else {
+          warped.dispose()
+          ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+          console.log('DONE', tf.memory().numTensors)
         }
       }
 
