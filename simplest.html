@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.0.0/dist/tf.min.js"></script>
+  </head>
+  <body>
+    <h1>TimeWarp</h1>
+    <div style="position: relative; height: 80vh">
+      <video id="mystery" height="100%" autoplay></video>
+      <canvas id="result" style="position: absolute; left: 0"></canvas>
+      <canvas id="detection" style="position: absolute; left: 0"></canvas>
+    </div>
+    <div>
+      <button onclick="performScan()">Scan</button>
+      <label for="chunkSize">Chunk Size:</label>
+      <select name="chunkSize" id="chunky">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4">4</option>
+        <option value="8" selected>8</option>
+        <option value="16">16</option>
+        <option value="32">32</option>
+        <option value="64">64</option>
+      </select>
+      <label for="color">Colors:</label>
+      <select name="color" id="colorSize">
+        <option value="1">1</option>
+        <option value="3" selected>3</option>
+      </select>
+    </div>
+    <script>
+      const resultCanv = document.getElementById('result')
+      let counter = 0
+      let warped, mysteryVideo, camDetails
+
+      async function setupWebcam(videoRef) {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          const webcamStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: 'user',
+            },
+          })
+
+          if ('srcObject' in videoRef) {
+            videoRef.srcObject = webcamStream
+          } else {
+            videoRef.src = window.URL.createObjectURL(webcamStream)
+          }
+
+          return new Promise((resolve, _) => {
+            videoRef.onloadedmetadata = () => {
+              // Prep Canvas
+              const detection = document.getElementById('detection')
+              const ctx = detection.getContext('2d')
+              const imgWidth = videoRef.clientWidth
+              const imgHeight = videoRef.clientHeight
+              detection.width = imgWidth
+              detection.height = imgHeight
+              resolve([ctx, imgHeight, imgWidth])
+            }
+          })
+        } else {
+          alert('No webcam - sorry!')
+        }
+      }
+
+      async function setupStuff() {
+        try {
+          mysteryVideo = document.getElementById('mystery')
+          camDetails = await setupWebcam(mysteryVideo)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+
+      function performScan() {
+        counter = 0
+        scanLine(mysteryVideo, camDetails)
+      }
+
+      async function scanLine(videoRef, camDetails) {
+        const [ctx, imgHeight, imgWidth] = camDetails
+        const chunkSize = +document.getElementById('chunky').value
+        const numChannels = +document.getElementById('colorSize').value
+
+        const cut = tf.tidy(() => {
+          const myTensor = tf.browser.fromPixels(videoRef, numChannels)
+          const resizedTensor = tf.image
+            .resizeBilinear(
+              myTensor,
+              [ctx.canvas.clientHeight, ctx.canvas.clientWidth],
+              true
+            )
+            .div(255)
+
+          // Never overslice
+          const calculatedChunk =
+            counter + chunkSize > resizedTensor.shape[0]
+              ? resizedTensor.shape[0] - counter
+              : chunkSize
+
+          return tf.slice(
+            resizedTensor,
+            [counter, 0, 0],
+            [calculatedChunk, ctx.canvas.clientWidth, numChannels]
+          )
+        })
+
+        // Concat or create tensor
+        let newWarp
+        if (counter > 0) {
+          newWarp = tf.concat([warped, cut])
+          tf.dispose([cut, warped])
+        } else {
+          newWarp = cut
+        }
+        warped = newWarp
+
+        await tf.browser.toPixels(warped, resultCanv)
+
+        // clear everything each round
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        ctx.strokeStyle = '#0F0'
+        ctx.lineWidth = chunkSize
+        ctx.beginPath()
+        ctx.moveTo(0, counter)
+        ctx.lineTo(ctx.canvas.width, counter)
+        ctx.stroke()
+
+        counter = counter + chunkSize
+
+        if (counter <= ctx.canvas.height) {
+          requestAnimationFrame(() => {
+            scanLine(videoRef, camDetails)
+          })
+        } else {
+          warped.dispose()
+          ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+          console.log('DONE', tf.memory().numTensors)
+        }
+      }
+
+      setupStuff()
+    </script>
+  </body>
+</html>
