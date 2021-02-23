@@ -69,12 +69,21 @@
         const [ctx, imgHeight, imgWidth] = camDetails
         const myTensor = tf.browser.fromPixels(videoRef, numChannels)
 
-        const cut = tf.slice(
-          myTensor,
-          [counter, 0, 0],
-          [chunkSize, ctx.canvas.width, numChannels]
-        )
-        myTensor.dispose()
+        const cut = tf.tidy(() => {
+          const resizedTensor = tf.image
+            .resizeBilinear(
+              myTensor,
+              [ctx.canvas.clientHeight, ctx.canvas.clientWidth],
+              true
+            )
+            .div(255)
+
+          return tf.slice(
+            resizedTensor,
+            [counter, 0, 0],
+            [chunkSize, ctx.canvas.width, numChannels]
+          )
+        })
 
         // Concat or create tensor
         let newWarp
