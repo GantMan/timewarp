@@ -12,7 +12,6 @@
     </div>
     <div>
       <button onclick="performScan()">Scan</button>
-      <button id="loopB" onclick="toggleLoop()">Loop Scan</button>
       <label for="chunkSize">Chunk Size:</label>
       <select name="chunkSize" id="chunky">
         <option value="1">1</option>
@@ -28,21 +27,17 @@
         <option value="1">1</option>
         <option value="3" selected>3</option>
       </select>
-
       <button onclick="clearResult()">Clear</button>
-      <button onclick="saveResult()">Download</button>
     </div>
     <div>
       <canvas id="bar" style="display: none"></canvas>
     </div>
-    <a id="link"></a>
     <script>
       const resultCanv = document.getElementById('result')
       const resultCtx = resultCanv.getContext('2d')
       const barCanv = document.getElementById('bar')
       const detection = document.getElementById('detection')
       let counter = 0
-      let looping = false
       let warped, mysteryVideo, camDetails
 
       async function setupWebcam(videoRef) {
@@ -78,17 +73,6 @@
         }
       }
 
-      async function toggleLoop() {
-        looping = !looping
-        const btn = document.getElementById('loopB')
-        if (looping) {
-          btn.innerText = 'Stop Loop'
-          performScan()
-        } else {
-          btn.innerText = 'Loop Scan'
-        }
-      }
-
       async function setupStuff() {
         try {
           mysteryVideo = document.getElementById('mystery')
@@ -107,18 +91,6 @@
         )
         // prep scanline
         detection.style.display = 'inline-block'
-      }
-
-      function saveResult() {
-        const link = document.getElementById('link')
-        link.setAttribute('download', 'timewarper.png')
-        link.setAttribute(
-          'href',
-          resultCanv
-            .toDataURL('image/png')
-            .replace('image/png', 'image/octet-stream')
-        )
-        link.click()
       }
 
       function performScan() {
@@ -185,13 +157,6 @@
         counter = counter + chunkSize
 
         if (counter < ctx.canvas.height) {
-          requestAnimationFrame(() => {
-            scanLine(videoRef, camDetails)
-          })
-        } else if (looping) {
-          counter = 0
-          warped.dispose()
-          ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
           requestAnimationFrame(() => {
             scanLine(videoRef, camDetails)
           })
