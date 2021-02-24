@@ -28,8 +28,13 @@
         <option value="3" selected>3</option>
       </select>
     </div>
+    <div>
+      <canvas id="bar"></canvas>
+    </div>
     <script>
       const resultCanv = document.getElementById('result')
+      const resultCtx = resultCanv.getContext('2d')
+      const barCanv = document.getElementById('bar')
       let counter = 0
       let warped, mysteryVideo, camDetails
 
@@ -107,6 +112,8 @@
           )
         })
 
+        await tf.browser.toPixels(cut, barCanv)
+
         // Concat or create tensor
         let newWarp
         if (counter > 0) {
@@ -117,7 +124,9 @@
         }
         warped = newWarp
 
-        await tf.browser.toPixels(warped, resultCanv)
+        // await tf.browser.toPixels(warped, resultCanv)
+
+        resultCtx.drawImage(barCanv, 0, counter)
 
         // clear everything each round
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
