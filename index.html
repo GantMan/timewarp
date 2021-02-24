@@ -16,8 +16,8 @@
       <select name="chunkSize" id="chunky">
         <option value="1">1</option>
         <option value="2">2</option>
-        <option value="4">4</option>
-        <option value="8" selected>8</option>
+        <option value="4" selected>4</option>
+        <option value="8">8</option>
         <option value="16">16</option>
         <option value="32">32</option>
         <option value="64">64</option>
@@ -27,14 +27,16 @@
         <option value="1">1</option>
         <option value="3" selected>3</option>
       </select>
+      <button onclick="clearResult()">Clear</button>
     </div>
     <div>
-      <canvas id="bar"></canvas>
+      <canvas id="bar" style="display: none"></canvas>
     </div>
     <script>
       const resultCanv = document.getElementById('result')
       const resultCtx = resultCanv.getContext('2d')
       const barCanv = document.getElementById('bar')
+      const detection = document.getElementById('detection')
       let counter = 0
       let warped, mysteryVideo, camDetails
 
@@ -56,12 +58,13 @@
           return new Promise((resolve, _) => {
             videoRef.onloadedmetadata = () => {
               // Prep Canvas
-              const detection = document.getElementById('detection')
               const ctx = detection.getContext('2d')
               const imgWidth = videoRef.clientWidth
               const imgHeight = videoRef.clientHeight
               detection.width = imgWidth
               detection.height = imgHeight
+              resultCanv.width = imgWidth
+              resultCanv.height = imgHeight
               resolve([ctx, imgHeight, imgWidth])
             }
           })
@@ -79,9 +82,25 @@
         }
       }
 
+      function clearResult() {
+        resultCtx.clearRect(
+          0,
+          0,
+          resultCtx.canvas.width,
+          resultCtx.canvas.height
+        )
+        // prep scanline
+        detection.style.display = 'inline-block'
+      }
+
       function performScan() {
+        // reset counter
         counter = 0
+        // clear previous
+        clearResult()
+        // start scan
         scanLine(mysteryVideo, camDetails)
+        //
       }
 
       async function scanLine(videoRef, camDetails) {
@@ -124,8 +143,6 @@
         }
         warped = newWarp
 
-        // await tf.browser.toPixels(warped, resultCanv)
-
         resultCtx.drawImage(barCanv, 0, counter)
 
         // clear everything each round
@@ -139,12 +156,13 @@
 
         counter = counter + chunkSize
 
-        if (counter <= ctx.canvas.height) {
+        if (counter < ctx.canvas.height) {
           requestAnimationFrame(() => {
             scanLine(videoRef, camDetails)
           })
         } else {
           warped.dispose()
+          detection.style.display = 'none'
           ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
           console.log('DONE', tf.memory().numTensors)
         }
