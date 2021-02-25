@@ -28,6 +28,15 @@
         <option value="0" selected>Top Down</option>
         <option value="1">Left Right</option>
       </select>
+      <label for="delayStart">Delay Start:</label>
+      <select name="delayStart" id="delayStart">
+        <option value="0" selected>None</option>
+        <option value="500">500ms</option>
+        <option value="1000">1s</option>
+        <option value="3000">3s</option>
+        <option value="5000">5s</option>
+        <option value="10000">10s</option>
+      </select>
       <label for="delay">Scan Speed:</label>
       <select name="delay" id="delay">
         <option value="0" selected>ASAP</option>
@@ -37,7 +46,7 @@
         <option value="500">500ms</option>
         <option value="1000">1s</option>
         <option value="5000">5s</option>
-      </select>      
+      </select>
       <label for="color">Colors:</label>
       <select name="color" id="colorSize">
         <option value="1">1</option>
@@ -95,12 +104,12 @@
       }
 
       function mirrorCam() {
-        mirror = !mirror 
+        mirror = !mirror
         const vid = document.getElementById('mystery')
         if (mirror) {
-          vid.style.transform = "scaleX(-1)"
+          vid.style.transform = 'scaleX(-1)'
         } else {
-          vid.style.transform = "scaleX(1)"
+          vid.style.transform = 'scaleX(1)'
         }
       }
 
@@ -147,7 +156,14 @@
         link.click()
       }
 
-      function performScan() {
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms))
+      }
+
+      async function performScan() {
+        // Give them time to get in position
+        const delayStart = +document.getElementById('delayStart').value
+        await sleep(delayStart)
         // reset counter
         counter = 0
         // clear previous
@@ -155,10 +171,6 @@
         // start scan
         scanLine(mysteryVideo, camDetails)
       }
-
-      function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      }      
 
       async function scanLine(videoRef, camDetails) {
         const [ctx, imgHeight, imgWidth] = camDetails
@@ -216,8 +228,8 @@
         // clear everything each round
         let endCount
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        ctx.shadowColor = 'red';
-        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'red'
+        ctx.shadowBlur = 15
         ctx.strokeStyle = '#0F0C'
         ctx.lineWidth = chunkSize
         ctx.beginPath()
