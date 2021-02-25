@@ -57,6 +57,9 @@
       <button onclick="saveResult()">Download</button>
     </div>
     <div>
+      <video id="playback" autoplay controls></video>
+    </div>
+    <div>
       <canvas id="bar" style="display: none"></canvas>
     </div>
     <a id="link"></a>
@@ -68,11 +71,11 @@
       let counter = 0
       let looping = false
       let mirror = false
-      let warped, mysteryVideo, camDetails
+      let warped, mysteryVideo, camDetails, mediaRecorder, webcamStream
 
       async function setupWebcam(videoRef) {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          const webcamStream = await navigator.mediaDevices.getUserMedia({
+          webcamStream = await navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
               facingMode: 'user',
@@ -160,10 +163,37 @@
         return new Promise((resolve) => setTimeout(resolve, ms))
       }
 
+      function startRecording() {
+        const scanStream = resultCanv.captureStream(30)
+        scanStream.addTrack(webcamStream.getVideoTracks()[0])
+        // webcamStream.addTrack(scanStream.getVideoTracks()[0])
+        mediaRecorder = new MediaRecorder(scanStream)
+        let chunks = []
+        mediaRecorder.ondataavailable = function (e) {
+          chunks.push(e.data)
+        }
+
+        mediaRecorder.onstop = function (e) {
+          let blob = new Blob(chunks, { type: 'video/mp4' })
+          chunks = []
+          const video = document.getElementById('playback')
+          var videoURL = URL.createObjectURL(blob)
+          video.src = videoURL
+        }
+
+        mediaRecorder.ondataavailable = function (e) {
+          chunks.push(e.data)
+        }
+
+        mediaRecorder.start()
+      }
+
       async function performScan() {
         // Give them time to get in position
         const delayStart = +document.getElementById('delayStart').value
         await sleep(delayStart)
+        // record
+        startRecording()
         // reset counter
         counter = 0
         // clear previous
@@ -250,7 +280,7 @@
         }
         ctx.stroke()
 
-        counter = counter + chunkSize
+        counter += chunkSize
 
         if (counter < endCount) {
           requestAnimationFrame(() => {
@@ -264,6 +294,11 @@
             scanLine(videoRef, camDetails)
           })
         } else {
+          // stop recording
+          setTimeout(function () {
+            mediaRecorder.stop()
+          }, 2000)
+          // cleanup
           warped.dispose()
           detection.style.display = 'none'
           ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
