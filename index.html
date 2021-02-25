@@ -5,7 +5,7 @@
   </head>
   <body>
     <h1>TimeWarp</h1>
-    <div style="position: relative; height: 80vh">
+    <div style="position: relative; height: 90vh">
       <video id="mystery" height="100%" autoplay></video>
       <canvas id="result" style="position: absolute; left: 0"></canvas>
       <canvas id="detection" style="position: absolute; left: 0"></canvas>
@@ -22,6 +22,11 @@
         <option value="16">16</option>
         <option value="32">32</option>
         <option value="64">64</option>
+      </select>
+      <label for="direction">Direction:</label>
+      <select name="direction" id="direction">
+        <option value="0" selected>Top Down</option>
+        <option value="1">Left Right</option>
       </select>
       <label for="color">Colors:</label>
       <select name="color" id="colorSize">
@@ -135,8 +140,10 @@
         const [ctx, imgHeight, imgWidth] = camDetails
         const chunkSize = +document.getElementById('chunky').value
         const numChannels = +document.getElementById('colorSize').value
+        const direction = +document.getElementById('direction').value
 
         const cut = tf.tidy(() => {
+          debugger
           const myTensor = tf.browser.fromPixels(videoRef, numChannels)
           const resizedTensor = tf.image
             .resizeBilinear(
@@ -148,15 +155,21 @@
 
           // Never overslice
           const calculatedChunk =
-            counter + chunkSize > resizedTensor.shape[0]
-              ? resizedTensor.shape[0] - counter
+            counter + chunkSize > resizedTensor.shape[direction]
+              ? resizedTensor.shape[direction] - counter
               : chunkSize
 
-          return tf.slice(
-            resizedTensor,
-            [counter, 0, 0],
-            [calculatedChunk, ctx.canvas.clientWidth, numChannels]
-          )
+          // Adjust cut for axis
+          const startPos = [0, 0, 0]
+          startPos[direction] = counter
+          const cutShape = [
+            ctx.canvas.clientHeight,
+            ctx.canvas.clientWidth,
+            numChannels,
+          ]
+          cutShape[direction] = calculatedChunk
+
+          return tf.slice(resizedTensor, startPos, cutShape)
         })
 
         await tf.browser.toPixels(cut, barCanv)
@@ -164,27 +177,39 @@
         // Concat or create tensor
         let newWarp
         if (counter > 0) {
-          newWarp = tf.concat([warped, cut])
+          newWarp = tf.concat([warped, cut], direction)
           tf.dispose([cut, warped])
         } else {
           newWarp = cut
         }
         warped = newWarp
 
-        resultCtx.drawImage(barCanv, 0, counter)
-
         // clear everything each round
+        let endCount
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         ctx.strokeStyle = '#0F0'
         ctx.lineWidth = chunkSize
         ctx.beginPath()
-        ctx.moveTo(0, counter)
-        ctx.lineTo(ctx.canvas.width, counter)
+        if (direction < 1) {
+          // draw slice
+          resultCtx.drawImage(barCanv, 0, counter)
+          // draw line
+          ctx.moveTo(0, counter)
+          ctx.lineTo(ctx.canvas.width, counter)
+          endCount = ctx.canvas.height
+        } else {
+          // draw slice
+          resultCtx.drawImage(barCanv, counter, 0)
+          // draw line
+          ctx.moveTo(counter, 0)
+          ctx.lineTo(counter, ctx.canvas.height)
+          endCount = ctx.canvas.width
+        }
         ctx.stroke()
 
         counter = counter + chunkSize
 
-        if (counter < ctx.canvas.height) {
+        if (counter < endCount) {
           requestAnimationFrame(() => {
             scanLine(videoRef, camDetails)
           })
