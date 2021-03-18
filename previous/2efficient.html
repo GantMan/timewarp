@@ -38,7 +38,7 @@
       const barCanv = document.getElementById('bar')
       const detection = document.getElementById('detection')
       let counter = 0
-      let warped, mysteryVideo, camDetails
+      let mysteryVideo, camDetails
 
       async function setupWebcam(videoRef) {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -133,16 +133,6 @@
 
         await tf.browser.toPixels(cut, barCanv)
 
-        // Concat or create tensor
-        let newWarp
-        if (counter > 0) {
-          newWarp = tf.concat([warped, cut])
-          tf.dispose([cut, warped])
-        } else {
-          newWarp = cut
-        }
-        warped = newWarp
-
         resultCtx.drawImage(barCanv, 0, counter)
 
         // clear everything each round
@@ -161,7 +151,6 @@
             scanLine(videoRef, camDetails)
           })
         } else {
-          warped.dispose()
           detection.style.display = 'none'
           ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
           console.log('DONE', tf.memory().numTensors)
