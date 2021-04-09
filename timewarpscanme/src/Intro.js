@@ -1,4 +1,4 @@
-export default function Intro() {
+export default function Intro(props) {
   return (
     <div class="podium">
       <img class="open" src="/open.png" />
@@ -14,7 +14,7 @@ export default function Intro() {
           your images or videos. This site is free and open source.
         </p>
 
-        <div class="boxbutton" onClick={() => alert('yo')}>
+        <div className="boxbutton" onClick={props.exploreClick}>
           EXPLORE
         </div>
       </div>
