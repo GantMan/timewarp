@@ -1,0 +1,80 @@
+html {
+  background: rgb(59, 134, 209);
+  background: linear-gradient(
+    90deg,
+    rgba(59, 134, 209, 1) 0%,
+    rgba(239, 100, 147, 1) 100%
+  );
+}
+
+body {
+  background: rgb(59, 134, 209);
+  background: linear-gradient(
+    90deg,
+    rgba(59, 134, 209, 1) 0%,
+    rgba(239, 100, 147, 1) 100%
+  );
+  margin: 0;
+  padding: 0;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.site {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.podium {
+  background: rgb(59, 134, 209);
+  background: linear-gradient(
+    180deg,
+    rgba(59, 134, 209, 1) 0%,
+    rgba(239, 100, 147, 1) 100%
+  );
+  width: 85%;
+  height: 85%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.35), 0 23px 20px 0 rgba(0, 0, 0, 0.19);
+  display: flex;
+}
+
+.open {
+  max-height: 100%;
+  max-width: 75%;
+  align-self: flex-end;
+}
+
+.about {
+  align-self: flex-end;
+}
+
+.about p {
+  margin-top: 6px;
+  margin-bottom: 3em;
+  padding-right: 5px;
+}
+
+.about h3 {
+  margin: 0;
+}
+
+.boxbutton {
+  margin: 50px;
+  border-radius: 2px;
+  color: #fff;
+  text-align: center;
+  line-height: 50px;
+  box-shadow: 20px 5px 30px #cf77f3, 0px 5px 30px #009bff,
+    -20px 5px 30px #2ac9db;
+  background-image: linear-gradient(
+    -90deg,
+    #cf77f3 0%,
+    #009bff 47%,
+    #2ac9db 100%
+  );
+  border: 1px solid #fff;
+  min-width: 100px;
+  cursor: pointer;
+}
