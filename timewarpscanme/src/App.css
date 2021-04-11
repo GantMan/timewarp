@@ -38,7 +38,7 @@ body {
   height: 85%;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.35), 0 23px 20px 0 rgba(0, 0, 0, 0.19);
   display: flex;
-  margin: 5% auto;
+  margin: 5vh auto;
 }
 
 .open {
@@ -83,4 +83,17 @@ body {
 .full {
   width: 100%;
   height: 100%;
+}
+
+.camContainer {
+  position: relative; 
+  flex: 1;
+}
+
+video {
+  max-height: 100%;
+}
+
+#result, #detection {
+  position: absolute; left: 0;
 }
