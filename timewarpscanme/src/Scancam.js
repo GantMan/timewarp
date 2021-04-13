@@ -40,11 +40,11 @@ export default function (props) {
 
   useEffect(() => {
     setupWebcam()
-  });
+  }, []);
 
   return (
     <div className="camContainer">
-      <video ref={mysteryRef} id="mystery" width="100%" autoPlay></video>
+      <video ref={mysteryRef} id="mystery" width="100%" autoPlay style={{transform: `scaleX(${props.mirror ? '-100%' : '100%'}`}}></video>
       <canvas id="result"></canvas>
       <canvas ref={detectionRef} id="detection"></canvas>
     </div>
