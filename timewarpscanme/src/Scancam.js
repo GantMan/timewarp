@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function (props) {
   const mysteryRef = useRef(null);
   const detectionRef = useRef(null);
+  const [localStream, setLocalStream, ] = useState(null);
 
   async function setupWebcam() {
     const videoRef = mysteryRef.current
@@ -13,6 +14,8 @@ export default function (props) {
           facingMode: "user",
         },
       });
+
+      setLocalStream(webcamStream)
 
       // backwards compat
       if ("srcObject" in videoRef) {
@@ -38,9 +41,16 @@ export default function (props) {
     }
   }
 
+  function closeWebcam() {
+    if (localStream) {
+      localStream.getTracks()[0].stop()
+    }
+  }
+
   useEffect(() => {
-    setupWebcam()
-  }, []);
+    if (!localStream) setupWebcam()
+    return closeWebcam
+  }, [localStream]);
 
   return (
     <div className="camContainer">
