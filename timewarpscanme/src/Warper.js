@@ -12,20 +12,23 @@ export default function Warper(props) {
     <div className="full">
       <div className="podium">
         <Scancam record={record} mirror={mirror} color={color} />
-        <FormGroup>
-          <FormControlLabel
-            control={<Switch checked={record} onChange={(e) => setRecord(e.target.checked)} />}
-            label="Record"
-          />
-          <FormControlLabel
-            control={<Switch checked={mirror} onChange={(e) => setMirror(e.target.checked)} />}
-            label="Mirror"
-          />
-          <FormControlLabel
-            control={<Switch checked={color} onChange={(e) => setColor(e.target.checked)} />}
-            label="Color"
-          />
-        </FormGroup>
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+          <img src="/open.png" style={{width: '100px', height: '100px'}} onClick={() => alert('clicked')} />
+          <FormGroup>
+            <FormControlLabel
+              control={<Switch checked={record} onChange={(e) => setRecord(e.target.checked)} />}
+              label="Record"
+            />
+            <FormControlLabel
+              control={<Switch checked={mirror} onChange={(e) => setMirror(e.target.checked)} />}
+              label="Mirror"
+            />
+            <FormControlLabel
+              control={<Switch checked={color} onChange={(e) => setColor(e.target.checked)} />}
+              label="Color"
+            />
+          </FormGroup>
+        </div>
       </div>
       <div className="footer">
         <div>
