@@ -1,28 +1,36 @@
 // https://material-ui.com/components/switches/
 import { useState } from 'react'
 import Scancam from './Scancam'
+import PanelButton from './PanelButton'
 import { FormControlLabel, FormGroup, Switch } from '@material-ui/core'
 
 export default function Warper(props) {
-  const [record, setRecord] = useState(false)
+  const [record, setRecord] = useState(true)
   const [mirror, setMirror] = useState(false)
   const [color, setColor] = useState(true)
+  const [scanning, setScanning] = useState(true)
 
   return (
     <div className="full">
       <div className="podium">
-        <Scancam record={record} mirror={mirror} color={color} />
+        <Scancam
+          record={record}
+          mirror={mirror}
+          color={color}
+          scanning={[scanning, setScanning]}
+        />
         <div id="sidePanel">
-          <img
-            src="/scan.png"
-            className="sideButton"
-            onClick={() => alert('clicked')}
+          <PanelButton
+            image="scan"
+            disabled={scanning}
+            click={() => setScanning(true)}
           />
           <FormGroup>
             <FormControlLabel
               control={
                 <Switch
                   checked={record}
+                  disabled={scanning}
                   onChange={(e) => setRecord(e.target.checked)}
                 />
               }
@@ -47,20 +55,21 @@ export default function Warper(props) {
               label="Color"
             />
           </FormGroup>
-          <img
-            src="/watch.png"
-            className="sideButton"
-            onClick={() => alert('clicked')}
+
+          <PanelButton
+            image="watch"
+            disabled={true}
+            click={() => alert(scanning)}
           />
-          <img
-            src="/mp4.png"
-            className="sideButton"
-            onClick={() => alert('clicked')}
+          <PanelButton
+            image="mp4"
+            disabled={true}
+            click={() => alert(scanning)}
           />
-          <img
-            src="/png.png"
-            className="sideButton"
-            onClick={() => alert('clicked')}
+          <PanelButton
+            image="png"
+            disabled={true}
+            click={() => alert(scanning)}
           />
         </div>
       </div>

@@ -110,10 +110,16 @@ video {
 .sideButton {
   width: 70%;
   margin: 10px auto 10px 5%;
+  cursor: pointer;
 }
 
 #sidePanel {
   display: flex;
   flex-direction: column;
   /* justify-content: space-around; */
+}
+
+.dim {
+  opacity: 0.5;
+  cursor: default;
 }
