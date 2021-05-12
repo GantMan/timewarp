@@ -95,10 +95,12 @@ body {
 .camContainer {
   position: relative;
   flex: 1;
+  padding: 10px;
 }
 
 video {
   max-height: 100%;
+  box-shadow: 0 23px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #result,
