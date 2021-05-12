@@ -93,7 +93,7 @@ body {
 }
 
 .camContainer {
-  position: relative; 
+  position: relative;
   flex: 1;
 }
 
@@ -101,6 +101,19 @@ video {
   max-height: 100%;
 }
 
-#result, #detection {
-  position: absolute; left: 0;
+#result,
+#detection {
+  position: absolute;
+  left: 0;
+}
+
+.sideButton {
+  width: 70%;
+  margin: 10px auto 10px 5%;
+}
+
+#sidePanel {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-around; */
 }

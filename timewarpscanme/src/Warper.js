@@ -12,27 +12,61 @@ export default function Warper(props) {
     <div className="full">
       <div className="podium">
         <Scancam record={record} mirror={mirror} color={color} />
-        <div style={{display: 'flex', flexDirection: 'column'}}>
-          <img src="/open.png" style={{width: '100px', height: '100px'}} onClick={() => alert('clicked')} />
+        <div id="sidePanel">
+          <img
+            src="/scan.png"
+            className="sideButton"
+            onClick={() => alert('clicked')}
+          />
           <FormGroup>
             <FormControlLabel
-              control={<Switch checked={record} onChange={(e) => setRecord(e.target.checked)} />}
+              control={
+                <Switch
+                  checked={record}
+                  onChange={(e) => setRecord(e.target.checked)}
+                />
+              }
               label="Record"
             />
             <FormControlLabel
-              control={<Switch checked={mirror} onChange={(e) => setMirror(e.target.checked)} />}
+              control={
+                <Switch
+                  checked={mirror}
+                  onChange={(e) => setMirror(e.target.checked)}
+                />
+              }
               label="Mirror"
             />
             <FormControlLabel
-              control={<Switch checked={color} onChange={(e) => setColor(e.target.checked)} />}
+              control={
+                <Switch
+                  checked={color}
+                  onChange={(e) => setColor(e.target.checked)}
+                />
+              }
               label="Color"
             />
           </FormGroup>
+          <img
+            src="/watch.png"
+            className="sideButton"
+            onClick={() => alert('clicked')}
+          />
+          <img
+            src="/mp4.png"
+            className="sideButton"
+            onClick={() => alert('clicked')}
+          />
+          <img
+            src="/png.png"
+            className="sideButton"
+            onClick={() => alert('clicked')}
+          />
         </div>
       </div>
       <div className="footer">
         <div>
-          <a onClick={props.resetSeen}>RESET</a>
+          <a onClick={props.resetSeen}>About</a>
         </div>
         <div>
           <a href="https://github.com/GantMan/timewarp/tree/main/timewarpscanme">
@@ -41,7 +75,10 @@ export default function Warper(props) {
             Source Code
           </a>
         </div>
-        <span>Get the book: <a href="https://amzn.to/3dR3vpY">Learn TensorFlow.js</a></span>
+        <span>
+          Get the book:{' '}
+          <a href="https://amzn.to/3dR3vpY">Learn TensorFlow.js</a>
+        </span>
         <div>
           <a href="https://infinite.red">
             <img src="https://assets.website-files.com/5e67db0c1e7a468249544a75/5e6ad55212785322a62948a6_logo-ir%402x.png" />
