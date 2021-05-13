@@ -1,14 +1,54 @@
 // https://material-ui.com/components/switches/
+// https://material-ui.com/components/slider/
 import { useState } from 'react'
 import Scancam from './Scancam'
 import PanelButton from './PanelButton'
-import { FormControlLabel, FormGroup, Switch } from '@material-ui/core'
+import {
+  FormControlLabel,
+  FormGroup,
+  Switch,
+  Slider,
+  Typography,
+  Tooltip,
+  Divider,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+} from '@material-ui/core'
+import { withStyles } from '@material-ui/core/styles'
+
+const StylishSlider = withStyles({
+  root: {
+    color: '#f50057',
+    height: 8,
+  },
+})(Slider)
+
+const StyleishSelect = withStyles({
+  root: {
+    color: 'white',
+  },
+  select: {
+    borderBottom: '1px solid #f50057',
+  },
+  icon: {
+    fill: 'white',
+  },
+})(Select)
+
+const StylishInputLabel = withStyles({
+  root: {
+    color: '#2e385d',
+  },
+})(InputLabel)
 
 export default function Warper(props) {
   const [record, setRecord] = useState(true)
   const [mirror, setMirror] = useState(false)
   const [color, setColor] = useState(true)
-  const [scanning, setScanning] = useState(true)
+  const [loops, setLoops] = useState(false)
+  const [scanning, setScanning] = useState(false)
 
   return (
     <div className="full">
@@ -25,6 +65,7 @@ export default function Warper(props) {
             disabled={scanning}
             click={() => setScanning(true)}
           />
+
           <FormGroup>
             <FormControlLabel
               control={
@@ -54,8 +95,74 @@ export default function Warper(props) {
               }
               label="Color"
             />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={loops}
+                  onChange={(e) => setLoops(e.target.checked)}
+                />
+              }
+              label="Loop"
+            />
           </FormGroup>
+          <Divider style={{ margin: 15 }} />
 
+          <Tooltip title="Number of seconds before a scan activates">
+            <Typography id="discrete-slider" gutterBottom>
+              Delay Start
+            </Typography>
+          </Tooltip>
+          <StylishSlider
+            defaultValue={0}
+            aria-labelledby="discrete-delay-slider"
+            valueLabelDisplay="auto"
+            marks
+            style={{ width: '90%' }}
+            min={0}
+            max={10}
+          />
+          <Tooltip title="Slows scan speed">
+            <Typography id="discrete-slider" gutterBottom>
+              Scan Brakes
+            </Typography>
+          </Tooltip>
+          <StylishSlider
+            defaultValue={0}
+            aria-labelledby="discrete-slow-slider"
+            valueLabelDisplay="auto"
+            marks
+            style={{ width: '90%' }}
+            min={0}
+            max={50}
+          />
+          <Tooltip title="Adjust how many pixels get locked at a time by adjusting the scan line size">
+            <Typography id="discrete-slider" gutterBottom>
+              Scan Line Size
+            </Typography>
+          </Tooltip>
+          <StylishSlider
+            defaultValue={0}
+            aria-labelledby="discrete-chunk-slider"
+            valueLabelDisplay="auto"
+            marks
+            scale={(x) => 2 ** x}
+            style={{ width: '90%' }}
+            min={0}
+            max={6}
+          />
+          <FormControl style={{ width: '90%', marginTop: 5, marginBottom: 20 }}>
+            <StylishInputLabel id="direction-simple-select-label">
+              Direction
+            </StylishInputLabel>
+            <StyleishSelect
+              labelId="direction-simple-select-label"
+              id="direction-simple-select"
+              value={0}
+            >
+              <MenuItem value={0}>Top-Down</MenuItem>
+              <MenuItem value={1}>Left-Right</MenuItem>
+            </StyleishSelect>
+          </FormControl>
           <PanelButton
             image="watch"
             disabled={true}

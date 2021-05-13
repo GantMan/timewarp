@@ -110,9 +110,10 @@ video {
 }
 
 .sideButton {
-  width: 70%;
-  margin: 10px auto 10px 5%;
+  width: 50%;
+  margin: 10px auto 10px auto;
   cursor: pointer;
+  padding-right: 10%;
 }
 
 #sidePanel {
