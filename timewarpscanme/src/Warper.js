@@ -49,6 +49,10 @@ export default function Warper(props) {
   const [color, setColor] = useState(true)
   const [loops, setLoops] = useState(false)
   const [scanning, setScanning] = useState(false)
+  const [delayStart, setDelayStart] = useState(0)
+  const [scanBreaks, setScanBreaks] = useState(0)
+  const [scanSize, setScanSize] = useState(2)
+  const [direction, setDirection] = useState(0)
 
   return (
     <div className="full">
@@ -58,13 +62,19 @@ export default function Warper(props) {
           mirror={mirror}
           color={color}
           scanning={[scanning, setScanning]}
+          delayStart={delayStart}
+          scanBreaks={scanBreaks}
+          scanSize={scanSize}
+          direction={direction}
         />
         <div id="sidePanel">
           <PanelButton
-            image="scan"
+            image="cleanscan"
             disabled={scanning}
+            rotate={direction === 1}
             click={() => setScanning(true)}
           />
+          <p className="sLabel">SCAN</p>
 
           <FormGroup>
             <FormControlLabel
@@ -114,6 +124,8 @@ export default function Warper(props) {
           </Tooltip>
           <StylishSlider
             defaultValue={0}
+            value={delayStart}
+            onChange={(e, v) => setDelayStart(v)}
             aria-labelledby="discrete-delay-slider"
             valueLabelDisplay="auto"
             marks
@@ -128,6 +140,8 @@ export default function Warper(props) {
           </Tooltip>
           <StylishSlider
             defaultValue={0}
+            value={scanBreaks}
+            onChange={(e, v) => setScanBreaks(v)}
             aria-labelledby="discrete-slow-slider"
             valueLabelDisplay="auto"
             marks
@@ -141,10 +155,12 @@ export default function Warper(props) {
             </Typography>
           </Tooltip>
           <StylishSlider
-            defaultValue={0}
+            defaultValue={scanSize}
             aria-labelledby="discrete-chunk-slider"
             valueLabelDisplay="auto"
             marks
+            value={scanSize}
+            onChange={(e, v) => setScanSize(v)}
             scale={(x) => 2 ** x}
             style={{ width: '90%' }}
             min={0}
@@ -157,7 +173,8 @@ export default function Warper(props) {
             <StyleishSelect
               labelId="direction-simple-select-label"
               id="direction-simple-select"
-              value={0}
+              value={direction}
+              onChange={(e) => setDirection(e.target.value)}
             >
               <MenuItem value={0}>Top-Down</MenuItem>
               <MenuItem value={1}>Left-Right</MenuItem>
@@ -166,17 +183,17 @@ export default function Warper(props) {
           <PanelButton
             image="watch"
             disabled={true}
-            click={() => alert(scanning)}
+            click={() => alert('Watch recorded video here')}
           />
           <PanelButton
             image="mp4"
             disabled={true}
-            click={() => alert(scanning)}
+            click={() => alert('download MP4 here')}
           />
           <PanelButton
             image="png"
             disabled={true}
-            click={() => alert(scanning)}
+            click={() => alert('save PNG here')}
           />
         </div>
       </div>

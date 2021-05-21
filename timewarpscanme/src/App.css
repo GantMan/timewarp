@@ -110,7 +110,7 @@ video {
 }
 
 .sideButton {
-  width: 50%;
+  width: 45%;
   margin: 10px auto 10px auto;
   cursor: pointer;
   padding-right: 10%;
@@ -125,4 +125,16 @@ video {
 .dim {
   opacity: 0.5;
   cursor: default;
+}
+
+.rotateButton {
+  transform: rotate(90deg);
+  padding-top: 10%;
+  margin-bottom: 0;
+}
+
+.sLabel {
+  text-align: center;
+  padding-right: 10%;
+  margin-top: 0;
 }

@@ -70,7 +70,7 @@ export default function (props) {
         id="mystery"
         width="100%"
         autoPlay
-        style={{ transform: `scaleX(${props.mirror ? '-100%' : '100%'}` }}
+        style={{ transform: `scaleX(${props.mirror ? '1' : '-1'}` }}
       ></video>
       <canvas id="result"></canvas>
       <canvas ref={detectionRef} id="detection"></canvas>
