@@ -1,10 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react'
+import * as tf from '@tensorflow/tfjs'
 
 export default function (props) {
   const mysteryRef = useRef(null)
   const detectionRef = useRef(null)
+  const resultRef = useRef(null)
+  const barRef = useRef(null)
+  const compositeRef = useRef(null)
   const [localStream, setLocalStream] = useState(null)
   const [scanning, setScanning] = props.scanning
+  let counter = 0
+  let warped
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  function startRecording() {
+    // alert('record this')
+  }
+
+  function clearResult() {
+    const resultCtx = resultRef.current.getContext('2d')
+    resultCtx.clearRect(0, 0, resultCtx.canvas.width, resultCtx.canvas.height)
+    // prep scanline
+    // detection.style.display = 'inline-block'
+  }
 
   async function setupWebcam() {
     const videoRef = mysteryRef.current
@@ -28,12 +49,23 @@ export default function (props) {
       videoRef.onloadedmetadata = () => {
         // Prep Canvas
         const detection = detectionRef.current
-        const imgWidth = videoRef.clientWidth
+        const resultCanv = resultRef.current
+        const needsAdjustment = videoRef.clientHeight < videoRef.videoHeight
+        let imgWidth = videoRef.clientWidth
+        let leftAdjust = 0
+        if (needsAdjustment) {
+          imgWidth =
+            (videoRef.videoWidth / videoRef.videoHeight) * videoRef.clientHeight
+          leftAdjust = (videoRef.clientWidth - imgWidth) / 2 + 10 // 10 for pixel padding
+        }
         const imgHeight = videoRef.clientHeight
         detection.width = imgWidth
         detection.height = imgHeight
-        // const ctx = detection.getContext("2d");
-        // [ctx, imgHeight, imgWidth];
+        detection.style.left = `${leftAdjust}px`
+        resultCanv.width = imgWidth
+        resultCanv.height = imgHeight
+        resultCanv.style.left = `${leftAdjust}px`
+        console.log('Needs adjustment ', needsAdjustment)
       }
     } else {
       alert('No webcam - sorry!')
@@ -46,12 +78,123 @@ export default function (props) {
     }
   }
 
-  function startScan() {
-    alert('Starting scan ' + scanning)
-    setTimeout(() => {
+  async function scanLine() {
+    const videoRef = mysteryRef.current
+    const ctx = detectionRef.current.getContext('2d')
+    const chunkSize = 2 ** props.scanSize
+    const direction = props.direction
+    const numChannels = props.color ? 3 : 1
+
+    // Slow scan on fast computers
+    await sleep(props.scanBreaks * 10)
+
+    const cut = tf.tidy(() => {
+      const myTensor = tf.browser.fromPixels(videoRef, numChannels)
+      let resizedTensor = tf.image
+        .resizeBilinear(
+          myTensor,
+          [ctx.canvas.clientHeight, ctx.canvas.clientWidth],
+          true
+        )
+        .div(255)
+      if (props.mirror) resizedTensor = resizedTensor.reverse(1)
+      // Never overslice
+      const calculatedChunk =
+        counter + chunkSize > resizedTensor.shape[direction]
+          ? resizedTensor.shape[direction] - counter
+          : chunkSize
+      // Adjust cut for axis
+      const startPos = [0, 0, 0]
+      startPos[direction] = counter
+      const cutShape = [
+        ctx.canvas.clientHeight,
+        ctx.canvas.clientWidth,
+        numChannels,
+      ]
+      cutShape[direction] = calculatedChunk
+      return tf.slice(resizedTensor, startPos, cutShape)
+    })
+    await tf.browser.toPixels(cut, barRef.current)
+    // Concat or create tensor
+    let newWarp
+    if (counter > 0) {
+      newWarp = tf.concat([warped, cut], direction)
+      tf.dispose([cut, warped])
+    } else {
+      newWarp = cut
+    }
+    warped = newWarp
+    // clear everything each round
+    let endCount
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    ctx.shadowColor = 'red'
+    ctx.shadowBlur = 5
+    ctx.strokeStyle = '#0F0C'
+    ctx.lineWidth = chunkSize
+    ctx.beginPath()
+    const resultCtx = resultRef.current.getContext('2d')
+    if (direction < 1) {
+      // draw slice
+      resultCtx.drawImage(barRef.current, 0, counter)
+      // draw line
+      ctx.moveTo(0, counter)
+      ctx.lineTo(ctx.canvas.width, counter)
+      endCount = ctx.canvas.height
+    } else {
+      // draw slice
+      resultCtx.drawImage(barRef.current, counter, 0)
+      // draw line
+      ctx.moveTo(counter, 0)
+      ctx.lineTo(counter, ctx.canvas.height)
+      endCount = ctx.canvas.width
+    }
+    ctx.stroke()
+    // increase counter
+    counter += chunkSize
+    // start composite
+    const compositeCtx = compositeRef.current.getContext('2d')
+    compositeCtx.drawImage(
+      videoRef,
+      0,
+      0,
+      ctx.canvas.clientWidth,
+      ctx.canvas.clientHeight
+    )
+    compositeCtx.drawImage(resultRef.current, 0, 0)
+    compositeCtx.drawImage(detectionRef.current, 0, 0)
+    if (counter < endCount) {
+      requestAnimationFrame(() => {
+        scanLine()
+      })
+    } else if (props.loops) {
+      counter = 0
+      warped.dispose()
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      requestAnimationFrame(() => {
+        scanLine()
+      })
+    } else {
+      // stop recording
+      // setTimeout(function () {
+      //   mediaRecorder.stop()
+      // }, 2000)
+      // cleanup
+      warped.dispose()
+      // detection.style.display = 'none'
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       setScanning(false)
-      alert('scanning complete')
-    }, 5000)
+      console.log('DONE', tf.memory().numTensors)
+    }
+  }
+
+  async function startScan() {
+    await sleep(props.delayStart * 1000)
+    if (props.record) startRecording()
+    counter = 0
+    // clear previous
+    clearResult()
+    // start scan
+    scanLine()
   }
 
   useEffect(() => {
@@ -70,10 +213,18 @@ export default function (props) {
         id="mystery"
         width="100%"
         autoPlay
-        style={{ transform: `scaleX(${props.mirror ? '1' : '-1'}` }}
+        style={{ transform: `scaleX(${props.mirror ? '-1' : '1'}` }}
       ></video>
-      <canvas id="result"></canvas>
+      <canvas ref={resultRef} id="result"></canvas>
       <canvas ref={detectionRef} id="detection"></canvas>
+      <div>
+        <canvas
+          ref={compositeRef}
+          id="composite"
+          style={{ display: 'none' }}
+        ></canvas>
+        <canvas ref={barRef} id="bar" style={{ display: 'none' }}></canvas>
+      </div>
     </div>
   )
 }

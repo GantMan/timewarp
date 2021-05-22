@@ -45,7 +45,7 @@ const StylishInputLabel = withStyles({
 
 export default function Warper(props) {
   const [record, setRecord] = useState(true)
-  const [mirror, setMirror] = useState(false)
+  const [mirror, setMirror] = useState(true)
   const [color, setColor] = useState(true)
   const [loops, setLoops] = useState(false)
   const [scanning, setScanning] = useState(false)
@@ -61,6 +61,7 @@ export default function Warper(props) {
           record={record}
           mirror={mirror}
           color={color}
+          loops={loops}
           scanning={[scanning, setScanning]}
           delayStart={delayStart}
           scanBreaks={scanBreaks}
@@ -71,6 +72,7 @@ export default function Warper(props) {
           <PanelButton
             image="cleanscan"
             disabled={scanning}
+            tooltip="Click to activate Time Warp Scan"
             rotate={direction === 1}
             click={() => setScanning(true)}
           />
@@ -125,6 +127,7 @@ export default function Warper(props) {
           <StylishSlider
             defaultValue={0}
             value={delayStart}
+            disabled={scanning}
             onChange={(e, v) => setDelayStart(v)}
             aria-labelledby="discrete-delay-slider"
             valueLabelDisplay="auto"
@@ -182,16 +185,19 @@ export default function Warper(props) {
           </FormControl>
           <PanelButton
             image="watch"
+            tooltip="Watch recording of the scan"
             disabled={true}
             click={() => alert('Watch recorded video here')}
           />
           <PanelButton
             image="mp4"
+            tooltip="Download MP4 of the scan"
             disabled={true}
             click={() => alert('download MP4 here')}
           />
           <PanelButton
             image="png"
+            tooltip="Download PNG of the scan"
             disabled={true}
             click={() => alert('save PNG here')}
           />
