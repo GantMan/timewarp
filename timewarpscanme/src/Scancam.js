@@ -24,7 +24,7 @@ export default function (props) {
     const resultCtx = resultRef.current.getContext('2d')
     resultCtx.clearRect(0, 0, resultCtx.canvas.width, resultCtx.canvas.height)
     // prep scanline
-    // detection.style.display = 'inline-block'
+    detectionRef.current.style.display = 'inline-block'
   }
 
   async function setupWebcam() {
@@ -65,7 +65,6 @@ export default function (props) {
         resultCanv.width = imgWidth
         resultCanv.height = imgHeight
         resultCanv.style.left = `${leftAdjust}px`
-        console.log('Needs adjustment ', needsAdjustment)
       }
     } else {
       alert('No webcam - sorry!')
@@ -180,7 +179,7 @@ export default function (props) {
       // }, 2000)
       // cleanup
       warped.dispose()
-      // detection.style.display = 'none'
+      detectionRef.current.style.display = 'none'
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       setScanning(false)
       console.log('DONE', tf.memory().numTensors)
