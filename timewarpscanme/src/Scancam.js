@@ -9,6 +9,7 @@ export default function (props) {
   const compositeRef = useRef(null)
   const [localStream, setLocalStream] = useState(null)
   const [scanning, setScanning] = props.scanning
+  const [clear, setClear] = props.clear
   let counter = 0
   let warped
 
@@ -25,6 +26,7 @@ export default function (props) {
     resultCtx.clearRect(0, 0, resultCtx.canvas.width, resultCtx.canvas.height)
     // prep scanline
     detectionRef.current.style.display = 'inline-block'
+    setClear(false)
   }
 
   async function setupWebcam() {
@@ -204,6 +206,10 @@ export default function (props) {
   useEffect(() => {
     if (scanning) startScan()
   }, [scanning])
+
+  useEffect(() => {
+    if (clear) clearResult()
+  }, [clear])
 
   return (
     <div className="camContainer">

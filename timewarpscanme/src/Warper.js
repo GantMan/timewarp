@@ -49,6 +49,7 @@ export default function Warper(props) {
   const [color, setColor] = useState(true)
   const [loops, setLoops] = useState(false)
   const [scanning, setScanning] = useState(false)
+  const [clear, setClear] = useState(false)
   const [delayStart, setDelayStart] = useState(0)
   const [scanBreaks, setScanBreaks] = useState(0)
   const [scanSize, setScanSize] = useState(2)
@@ -63,6 +64,7 @@ export default function Warper(props) {
           color={color}
           loops={loops}
           scanning={[scanning, setScanning]}
+          clear={[clear, setClear]}
           delayStart={delayStart}
           scanBreaks={scanBreaks}
           scanSize={scanSize}
@@ -183,24 +185,38 @@ export default function Warper(props) {
               <MenuItem value={1}>Left-Right</MenuItem>
             </StyleishSelect>
           </FormControl>
-          <PanelButton
-            image="watch"
-            tooltip="Watch recording of the scan"
-            disabled={true}
-            click={() => alert('Watch recorded video here')}
-          />
-          <PanelButton
-            image="mp4"
-            tooltip="Download MP4 of the scan"
-            disabled={true}
-            click={() => alert('download MP4 here')}
-          />
-          <PanelButton
-            image="png"
-            tooltip="Download PNG of the scan"
-            disabled={true}
-            click={() => alert('save PNG here')}
-          />
+          <div className="buttonRow">
+            <PanelButton
+              mini
+              image="watch"
+              tooltip="Watch recording of the scan"
+              disabled={true}
+              click={() => alert('Watch recorded video here')}
+            />
+            <PanelButton
+              mini
+              image="clear2"
+              tooltip="Clear scan results"
+              disabled={scanning}
+              click={() => setClear(true)}
+            />
+          </div>
+          <div className="buttonRow">
+            <PanelButton
+              mini
+              image="mp4"
+              tooltip="Download MP4 of the scan"
+              disabled={true}
+              click={() => alert('download MP4 here')}
+            />
+            <PanelButton
+              mini
+              image="png"
+              tooltip="Download PNG of the scan"
+              disabled={true}
+              click={() => alert('save PNG here')}
+            />
+          </div>
         </div>
       </div>
       <div className="footer">
