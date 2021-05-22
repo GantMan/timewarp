@@ -49,6 +49,7 @@ export default function Warper(props) {
   const [color, setColor] = useState(true)
   const [loops, setLoops] = useState(false)
   const [scanning, setScanning] = useState(false)
+  const [saveResult, setSaveResult] = useState(false)
   const [clear, setClear] = useState(false)
   const [delayStart, setDelayStart] = useState(0)
   const [scanBreaks, setScanBreaks] = useState(0)
@@ -65,6 +66,7 @@ export default function Warper(props) {
           loops={loops}
           scanning={[scanning, setScanning]}
           clear={[clear, setClear]}
+          saveResult={[saveResult, setSaveResult]}
           delayStart={delayStart}
           scanBreaks={scanBreaks}
           scanSize={scanSize}
@@ -85,7 +87,7 @@ export default function Warper(props) {
               control={
                 <Switch
                   checked={record}
-                  disabled={scanning}
+                  disabled={scanning === true}
                   onChange={(e) => setRecord(e.target.checked)}
                 />
               }
@@ -129,7 +131,7 @@ export default function Warper(props) {
           <StylishSlider
             defaultValue={0}
             value={delayStart}
-            disabled={scanning}
+            disabled={scanning === true}
             onChange={(e, v) => setDelayStart(v)}
             aria-labelledby="discrete-delay-slider"
             valueLabelDisplay="auto"
@@ -178,6 +180,7 @@ export default function Warper(props) {
             <StyleishSelect
               labelId="direction-simple-select-label"
               id="direction-simple-select"
+              disabled={scanning === true}
               value={direction}
               onChange={(e) => setDirection(e.target.value)}
             >
@@ -197,7 +200,7 @@ export default function Warper(props) {
               mini
               image="clear2"
               tooltip="Clear scan results"
-              disabled={scanning}
+              disabled={scanning === true}
               click={() => setClear(true)}
             />
           </div>
@@ -206,15 +209,15 @@ export default function Warper(props) {
               mini
               image="mp4"
               tooltip="Download MP4 of the scan"
-              disabled={true}
-              click={() => alert('download MP4 here')}
+              disabled={scanning !== 'scanned'}
+              click={() => setSaveResult('MP4')}
             />
             <PanelButton
               mini
               image="png"
               tooltip="Download PNG of the scan"
-              disabled={true}
-              click={() => alert('save PNG here')}
+              disabled={scanning !== 'scanned'}
+              click={() => setSaveResult('PNG')}
             />
           </div>
         </div>

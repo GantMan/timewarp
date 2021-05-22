@@ -7,9 +7,12 @@ export default function (props) {
   const resultRef = useRef(null)
   const barRef = useRef(null)
   const compositeRef = useRef(null)
+  const linkRef = useRef(null)
+  const videoLinkRef = useRef(null)
   const [localStream, setLocalStream] = useState(null)
   const [scanning, setScanning] = props.scanning
   const [clear, setClear] = props.clear
+  const [saveResult, setSaveResult] = props.saveResult
   let counter = 0
   let warped
 
@@ -26,6 +29,7 @@ export default function (props) {
     resultCtx.clearRect(0, 0, resultCtx.canvas.width, resultCtx.canvas.height)
     // prep scanline
     detectionRef.current.style.display = 'inline-block'
+    setScanning(false)
     setClear(false)
   }
 
@@ -179,13 +183,27 @@ export default function (props) {
       // setTimeout(function () {
       //   mediaRecorder.stop()
       // }, 2000)
+
       // cleanup
       warped.dispose()
       detectionRef.current.style.display = 'none'
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-      setScanning(false)
+      setScanning('scanned')
       console.log('DONE', tf.memory().numTensors)
     }
+  }
+
+  function savePNGResult() {
+    const link = videoLinkRef.current
+    link.setAttribute('download', 'TimeWarpScanMe.png')
+    link.setAttribute(
+      'href',
+      resultRef.current
+        .toDataURL('image/png')
+        .replace('image/png', 'image/octet-stream')
+    )
+    link.click()
+    setSaveResult(false)
   }
 
   async function startScan() {
@@ -204,12 +222,17 @@ export default function (props) {
   }, [localStream])
 
   useEffect(() => {
-    if (scanning) startScan()
+    if (scanning === true) startScan()
   }, [scanning])
 
   useEffect(() => {
     if (clear) clearResult()
   }, [clear])
+
+  useEffect(() => {
+    if (saveResult === 'PNG') savePNGResult()
+    if (saveResult === 'MP4') alert('SAVE MP4')
+  }, [saveResult])
 
   return (
     <div className="camContainer">
@@ -229,6 +252,8 @@ export default function (props) {
           style={{ display: 'none' }}
         ></canvas>
         <canvas ref={barRef} id="bar" style={{ display: 'none' }}></canvas>
+        <a ref={linkRef} id="link"></a>
+        <a ref={videoLinkRef} id="videoLink"></a>
       </div>
     </div>
   )
