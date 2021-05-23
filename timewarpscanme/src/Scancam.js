@@ -55,13 +55,11 @@ export default function (props) {
         // Prep Canvas
         const detection = detectionRef.current
         const resultCanv = resultRef.current
-        const needsAdjustment = videoRef.clientHeight < videoRef.videoHeight
         // modify padding/width
         const imgWidth =
           (videoRef.videoWidth / videoRef.videoHeight) * videoRef.clientHeight
         const leftAdjust = (videoRef.clientWidth - imgWidth) / 2 + 10 // 10 for pixel padding
 
-        console.log('leftAdjust is ', leftAdjust)
         const imgHeight = videoRef.clientHeight
         detection.width = imgWidth
         detection.height = imgHeight
@@ -220,7 +218,6 @@ export default function (props) {
   }, [localStream])
 
   useEffect(() => {
-    console.log('scanning value', scanning)
     if (scanning === true) startScan()
   }, [scanning])
 
