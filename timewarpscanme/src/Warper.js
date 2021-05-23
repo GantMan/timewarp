@@ -75,7 +75,7 @@ export default function Warper(props) {
         <div id="sidePanel">
           <PanelButton
             image="cleanscan"
-            disabled={scanning}
+            disabled={scanning === true}
             tooltip="Click to activate Time Warp Scan"
             rotate={direction === 1}
             click={() => setScanning(true)}

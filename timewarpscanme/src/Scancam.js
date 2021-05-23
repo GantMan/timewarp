@@ -29,7 +29,6 @@ export default function (props) {
     resultCtx.clearRect(0, 0, resultCtx.canvas.width, resultCtx.canvas.height)
     // prep scanline
     detectionRef.current.style.display = 'inline-block'
-    setScanning(false)
     setClear(false)
   }
 
@@ -222,11 +221,15 @@ export default function (props) {
   }, [localStream])
 
   useEffect(() => {
+    console.log('scanning value', scanning)
     if (scanning === true) startScan()
   }, [scanning])
 
   useEffect(() => {
-    if (clear) clearResult()
+    if (clear) {
+      setScanning(false)
+      clearResult()
+    }
   }, [clear])
 
   useEffect(() => {
