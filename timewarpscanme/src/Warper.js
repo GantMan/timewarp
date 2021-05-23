@@ -193,8 +193,8 @@ export default function Warper(props) {
               mini
               image="watch"
               tooltip="Watch recording of the scan"
-              disabled={true}
-              click={() => alert('Watch recorded video here')}
+              disabled={false}
+              click={() => (window.location.href = '#playbackVideo')}
             />
             <PanelButton
               mini

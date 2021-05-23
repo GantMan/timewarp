@@ -3,6 +3,7 @@ import * as tf from '@tensorflow/tfjs'
 
 export default function (props) {
   const mysteryRef = useRef(null)
+  const playbackRef = useRef(null)
   const detectionRef = useRef(null)
   const resultRef = useRef(null)
   const barRef = useRef(null)
@@ -14,14 +15,34 @@ export default function (props) {
   const [clear, setClear] = props.clear
   const [saveResult, setSaveResult] = props.saveResult
   let counter = 0
-  let warped
+  let warped, mediaRecorder, videoURL
 
   function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   function startRecording() {
-    // alert('record this')
+    // 30fps video
+    const compositeStream = compositeRef.current.captureStream(30)
+    mediaRecorder = new MediaRecorder(compositeStream)
+    let chunks = []
+    mediaRecorder.ondataavailable = function (e) {
+      chunks.push(e.data)
+    }
+
+    mediaRecorder.onstop = function (e) {
+      let blob = new Blob(chunks, { type: 'video/mp4' })
+      chunks = []
+      const video = playbackRef.current
+      videoURL = URL.createObjectURL(blob)
+      video.src = videoURL
+    }
+
+    mediaRecorder.ondataavailable = function (e) {
+      chunks.push(e.data)
+    }
+
+    mediaRecorder.start()
   }
 
   function clearResult() {
@@ -55,6 +76,7 @@ export default function (props) {
         // Prep Canvas
         const detection = detectionRef.current
         const resultCanv = resultRef.current
+        const composite = compositeRef.current
         // modify padding/width
         const imgWidth =
           (videoRef.videoWidth / videoRef.videoHeight) * videoRef.clientHeight
@@ -67,6 +89,8 @@ export default function (props) {
         resultCanv.width = imgWidth
         resultCanv.height = imgHeight
         resultCanv.style.left = `${leftAdjust}px`
+        composite.width = imgWidth
+        composite.height = imgHeight
       }
     } else {
       alert('No webcam - sorry!')
@@ -176,9 +200,9 @@ export default function (props) {
       })
     } else {
       // stop recording
-      // setTimeout(function () {
-      //   mediaRecorder.stop()
-      // }, 2000)
+      setTimeout(function () {
+        mediaRecorder.stop()
+      }, 2000)
 
       // cleanup
       warped.dispose()
@@ -200,6 +224,14 @@ export default function (props) {
     )
     link.click()
     setSaveResult(false)
+  }
+
+  function saveMP4Result() {
+    const videoLink = videoLinkRef.current
+    console.log('video URL', videoURL)
+    videoLink.setAttribute('download', 'TimeWarpScanMe.mp4')
+    videoLink.setAttribute('href', videoURL)
+    videoLink.click()
   }
 
   async function startScan() {
@@ -230,7 +262,7 @@ export default function (props) {
 
   useEffect(() => {
     if (saveResult === 'PNG') savePNGResult()
-    if (saveResult === 'MP4') alert('SAVE MP4')
+    if (saveResult === 'MP4') saveMP4Result()
   }, [saveResult])
 
   return (
@@ -253,6 +285,20 @@ export default function (props) {
         <canvas ref={barRef} id="bar" style={{ display: 'none' }}></canvas>
         <a ref={linkRef} id="link"></a>
         <a ref={videoLinkRef} id="videoLink"></a>
+      </div>
+      <div id="playbackVideo" className="modal">
+        <div className="modal__content">
+          <video
+            ref={playbackRef}
+            id="playback"
+            controls
+            loop
+            //style={{ display: 'none' }}
+          ></video>
+          <a href="#" className="modal__close">
+            &times;
+          </a>
+        </div>
       </div>
     </div>
   )
