@@ -56,13 +56,12 @@ export default function (props) {
         const detection = detectionRef.current
         const resultCanv = resultRef.current
         const needsAdjustment = videoRef.clientHeight < videoRef.videoHeight
-        let imgWidth = videoRef.clientWidth
-        let leftAdjust = 0
-        if (needsAdjustment) {
-          imgWidth =
-            (videoRef.videoWidth / videoRef.videoHeight) * videoRef.clientHeight
-          leftAdjust = (videoRef.clientWidth - imgWidth) / 2 + 10 // 10 for pixel padding
-        }
+        // modify padding/width
+        const imgWidth =
+          (videoRef.videoWidth / videoRef.videoHeight) * videoRef.clientHeight
+        const leftAdjust = (videoRef.clientWidth - imgWidth) / 2 + 10 // 10 for pixel padding
+
+        console.log('leftAdjust is ', leftAdjust)
         const imgHeight = videoRef.clientHeight
         detection.width = imgWidth
         detection.height = imgHeight
