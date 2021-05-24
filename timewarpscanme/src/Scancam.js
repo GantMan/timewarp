@@ -178,6 +178,11 @@ export default function (props) {
     counter += chunkSize
     // start composite
     const compositeCtx = compositeRef.current.getContext('2d')
+    compositeCtx.save()
+    if (props.mirror) {
+      compositeCtx.translate(compositeRef.current.width, 0)
+      compositeCtx.scale(-1, 1)
+    }
     compositeCtx.drawImage(
       videoRef,
       0,
@@ -185,6 +190,7 @@ export default function (props) {
       ctx.canvas.clientWidth,
       ctx.canvas.clientHeight
     )
+    compositeCtx.restore()
     compositeCtx.drawImage(resultRef.current, 0, 0)
     compositeCtx.drawImage(detectionRef.current, 0, 0)
     if (counter < endCount) {
