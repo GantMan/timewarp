@@ -1,5 +1,5 @@
-# timewarp
-The timewarp filter with TensorFlow.js
+# TimeWarpScan.me
+The timewarp filter with TensorFlow.js and React
 
 To run:
 ```sh
