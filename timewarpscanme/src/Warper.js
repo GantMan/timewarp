@@ -194,7 +194,7 @@ export default function Warper(props) {
               mini
               image="watch"
               tooltip="Watch recording of the scan"
-              disabled={scanning !== "scanned"}
+              disabled={scanning !== "scanned" || record === false}
               click={() => (window.location.href = "#playbackVideo")}
             />
             <PanelButton
@@ -210,7 +210,7 @@ export default function Warper(props) {
               mini
               image="mp4"
               tooltip="Download MP4 of the scan"
-              disabled={scanning !== "scanned"}
+              disabled={scanning !== "scanned" || record === false}
               click={() => setSaveResult("MP4")}
             />
             <PanelButton

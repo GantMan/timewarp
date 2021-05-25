@@ -257,7 +257,6 @@ export default function Scancam(props) {
   // Downloads MP4 of the recorded process
   function saveMP4Result() {
     const videoLink = videoLinkRef.current
-    console.log("video URL", currentVideo)
     videoLink.setAttribute("download", "TimeWarpScanMe.mp4")
     videoLink.setAttribute("href", currentVideo)
     videoLink.click()
