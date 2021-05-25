@@ -7,6 +7,10 @@ html {
   );
 }
 
+a {
+  color: #fff;
+}
+
 body {
   background: rgb(59, 134, 209);
   background: linear-gradient(
@@ -90,6 +94,11 @@ body {
   flex-direction: row;
   flex: 1;
   justify-content: space-between;
+  align-items: center;
+  margin: -6px 0;
+  padding: 0 15px;
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 50px;
 }
 
 .camContainer {

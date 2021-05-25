@@ -225,22 +225,30 @@ export default function Warper(props) {
       </div>
       <div className="footer">
         <div>
-          <a onClick={props.resetSeen}>About</a>
+          <a style={{ cursor: "pointer" }} onClick={props.resetSeen}>
+            About TimeWarpScan.me
+          </a>
         </div>
         <div>
-          <a href="https://github.com/GantMan/timewarp/tree/main/timewarpscanme">
-            <img src="./GitHub-Mark-Light-64px.png" />
-            <br />
-            Source Code
+          <a
+            href="https://github.com/GantMan/timewarp/tree/main/timewarpscanme"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+            }}
+          >
+            <img src="./GitHub-Mark-Light-64px.png" height="30" /> &nbsp;Source
+            Code
           </a>
         </div>
         <span>
           Get the book:{" "}
-          <a href="https://amzn.to/3dR3vpY">Learn TensorFlow.js</a>
+          <a href="https://amzn.to/3dR3vpY">Learning TensorFlow.js</a>
         </span>
         <div>
           <a href="https://infinite.red">
-            <img src="https://assets.website-files.com/5e67db0c1e7a468249544a75/5e6ad55212785322a62948a6_logo-ir%402x.png" />
+            <img src="./ir.png" height="40" />
           </a>
         </div>
       </div>
