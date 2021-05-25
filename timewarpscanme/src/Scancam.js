@@ -29,6 +29,7 @@ export default function Scancam(props) {
   const compositeRef = useRef(null)
   const linkRef = useRef(null)
   const videoLinkRef = useRef(null)
+  const [currentVideo, setCurrentVideo] = useState(null)
 
   // Media stream
   const [localStream, setLocalStream] = useState(null)
@@ -55,6 +56,7 @@ export default function Scancam(props) {
       const video = playbackRef.current
       videoURL = URL.createObjectURL(blob)
       video.src = videoURL
+      setCurrentVideo(videoURL)
     }
     mediaRecorder.ondataavailable = (e) => chunks.push(e.data)
     mediaRecorder.start()
@@ -255,9 +257,9 @@ export default function Scancam(props) {
   // Downloads MP4 of the recorded process
   function saveMP4Result() {
     const videoLink = videoLinkRef.current
-    console.log("video URL", videoURL)
+    console.log("video URL", currentVideo)
     videoLink.setAttribute("download", "TimeWarpScanMe.mp4")
-    videoLink.setAttribute("href", videoURL)
+    videoLink.setAttribute("href", currentVideo)
     videoLink.click()
   }
 
@@ -291,7 +293,7 @@ export default function Scancam(props) {
   useEffect(() => {
     if (saveResult === "PNG") savePNGResult()
     if (saveResult === "MP4") saveMP4Result()
-  }, [saveResult])
+  }, [saveResult, currentVideo])
 
   return (
     <div className="camContainer">

@@ -105,6 +105,7 @@ export default function Warper(props) {
             <FormControlLabel
               control={
                 <Switch
+                  disabled={scanning === true}
                   checked={color}
                   onChange={(e) => setColor(e.target.checked)}
                 />
@@ -193,7 +194,7 @@ export default function Warper(props) {
               mini
               image="watch"
               tooltip="Watch recording of the scan"
-              disabled={false}
+              disabled={scanning !== "scanned"}
               click={() => (window.location.href = "#playbackVideo")}
             />
             <PanelButton
