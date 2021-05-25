@@ -1,8 +1,8 @@
 // https://material-ui.com/components/switches/
 // https://material-ui.com/components/slider/
-import { useState } from 'react'
-import Scancam from './Scancam'
-import PanelButton from './PanelButton'
+import { useState } from "react"
+import Scancam from "./Scancam"
+import PanelButton from "./PanelButton"
 import {
   FormControlLabel,
   FormGroup,
@@ -15,31 +15,31 @@ import {
   Select,
   MenuItem,
   InputLabel,
-} from '@material-ui/core'
-import { withStyles } from '@material-ui/core/styles'
+} from "@material-ui/core"
+import { withStyles } from "@material-ui/core/styles"
 
 const StylishSlider = withStyles({
   root: {
-    color: '#f50057',
+    color: "#f50057",
     height: 8,
   },
 })(Slider)
 
 const StyleishSelect = withStyles({
   root: {
-    color: 'white',
+    color: "white",
   },
   select: {
-    borderBottom: '1px solid #f50057',
+    borderBottom: "1px solid #f50057",
   },
   icon: {
-    fill: 'white',
+    fill: "white",
   },
 })(Select)
 
 const StylishInputLabel = withStyles({
   root: {
-    color: '#2e385d',
+    color: "#2e385d",
   },
 })(InputLabel)
 
@@ -136,7 +136,7 @@ export default function Warper(props) {
             aria-labelledby="discrete-delay-slider"
             valueLabelDisplay="auto"
             marks
-            style={{ width: '90%' }}
+            style={{ width: "90%" }}
             min={0}
             max={10}
           />
@@ -152,7 +152,7 @@ export default function Warper(props) {
             aria-labelledby="discrete-slow-slider"
             valueLabelDisplay="auto"
             marks
-            style={{ width: '90%' }}
+            style={{ width: "90%" }}
             min={0}
             max={50}
           />
@@ -169,11 +169,11 @@ export default function Warper(props) {
             value={scanSize}
             onChange={(e, v) => setScanSize(v)}
             scale={(x) => 2 ** x}
-            style={{ width: '90%' }}
+            style={{ width: "90%" }}
             min={0}
             max={6}
           />
-          <FormControl style={{ width: '90%', marginTop: 5, marginBottom: 20 }}>
+          <FormControl style={{ width: "90%", marginTop: 5, marginBottom: 20 }}>
             <StylishInputLabel id="direction-simple-select-label">
               Direction
             </StylishInputLabel>
@@ -194,7 +194,7 @@ export default function Warper(props) {
               image="watch"
               tooltip="Watch recording of the scan"
               disabled={false}
-              click={() => (window.location.href = '#playbackVideo')}
+              click={() => (window.location.href = "#playbackVideo")}
             />
             <PanelButton
               mini
@@ -209,15 +209,15 @@ export default function Warper(props) {
               mini
               image="mp4"
               tooltip="Download MP4 of the scan"
-              disabled={scanning !== 'scanned'}
-              click={() => setSaveResult('MP4')}
+              disabled={scanning !== "scanned"}
+              click={() => setSaveResult("MP4")}
             />
             <PanelButton
               mini
               image="png"
               tooltip="Download PNG of the scan"
-              disabled={scanning !== 'scanned'}
-              click={() => setSaveResult('PNG')}
+              disabled={scanning !== "scanned"}
+              click={() => setSaveResult("PNG")}
             />
           </div>
         </div>
@@ -234,7 +234,7 @@ export default function Warper(props) {
           </a>
         </div>
         <span>
-          Get the book:{' '}
+          Get the book:{" "}
           <a href="https://amzn.to/3dR3vpY">Learn TensorFlow.js</a>
         </span>
         <div>

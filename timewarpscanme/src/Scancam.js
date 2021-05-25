@@ -1,7 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react'
-import * as tf from '@tensorflow/tfjs'
+import React, { useEffect, useRef, useState } from "react"
+import * as tf from "@tensorflow/tfjs"
 
-export default function (props) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * This is hacky, and we'll want to re-architect this before getting too far.
+ * What we really need is a single model (MST?) with all the state and which hangs
+ * onto volatile things like refs, and manages all of the media state.
+ *
+ * But for now, we're just externally storing the props as a singleton and ensuring
+ * that it's updated anytime the function re-renders.
+ */
+const externalProps = {
+  currentProps: {},
+}
+
+export default function Scancam(props) {
+  externalProps.currentProps = props
+
+  // Media refs
   const mysteryRef = useRef(null)
   const playbackRef = useRef(null)
   const detectionRef = useRef(null)
@@ -10,63 +29,61 @@ export default function (props) {
   const compositeRef = useRef(null)
   const linkRef = useRef(null)
   const videoLinkRef = useRef(null)
+
+  // Media stream
   const [localStream, setLocalStream] = useState(null)
-  const [scanning, setScanning] = props.scanning
-  const [clear, setClear] = props.clear
-  const [saveResult, setSaveResult] = props.saveResult
+
+  // Scanner state
+  const [scanning, setScanning] = externalProps.currentProps.scanning
+  const [clear, setClear] = externalProps.currentProps.clear
+  const [saveResult, setSaveResult] = externalProps.currentProps.saveResult
+
+  // Some local state
   let counter = 0
   let warped, mediaRecorder, videoURL
 
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
-  }
-
+  // Creates a new media recorder & starts the recording stream
   function startRecording() {
     // 30fps video
     const compositeStream = compositeRef.current.captureStream(30)
     mediaRecorder = new MediaRecorder(compositeStream)
-    let chunks = []
-    mediaRecorder.ondataavailable = function (e) {
-      chunks.push(e.data)
-    }
 
+    let chunks = []
     mediaRecorder.onstop = function (e) {
-      let blob = new Blob(chunks, { type: 'video/mp4' })
+      let blob = new Blob(chunks, { type: "video/mp4" })
       chunks = []
       const video = playbackRef.current
       videoURL = URL.createObjectURL(blob)
       video.src = videoURL
     }
-
-    mediaRecorder.ondataavailable = function (e) {
-      chunks.push(e.data)
-    }
-
+    mediaRecorder.ondataavailable = (e) => chunks.push(e.data)
     mediaRecorder.start()
   }
 
+  // Clears the drawing context
   function clearResult() {
-    const resultCtx = resultRef.current.getContext('2d')
+    const resultCtx = resultRef.current.getContext("2d")
     resultCtx.clearRect(0, 0, resultCtx.canvas.width, resultCtx.canvas.height)
     // prep scanline
-    detectionRef.current.style.display = 'inline-block'
+    detectionRef.current.style.display = "inline-block"
     setClear(false)
   }
 
+  // Subscribes to webcam stream and sets up canvas
   async function setupWebcam() {
     const videoRef = mysteryRef.current
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       const webcamStream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
-          facingMode: 'user',
+          facingMode: "user",
         },
       })
 
       setLocalStream(webcamStream)
 
       // backwards compat
-      if ('srcObject' in videoRef) {
+      if ("srcObject" in videoRef) {
         videoRef.srcObject = webcamStream
       } else {
         videoRef.src = window.URL.createObjectURL(webcamStream)
@@ -93,7 +110,7 @@ export default function (props) {
         composite.height = imgHeight
       }
     } else {
-      alert('No webcam - sorry!')
+      alert("No webcam - sorry!")
     }
   }
 
@@ -103,15 +120,16 @@ export default function (props) {
     }
   }
 
+  // Recursive function that scans each line on the webcam
   async function scanLine() {
     const videoRef = mysteryRef.current
-    const ctx = detectionRef.current.getContext('2d')
-    const chunkSize = 2 ** props.scanSize
-    const direction = props.direction
-    const numChannels = props.color ? 3 : 1
+    const ctx = detectionRef.current.getContext("2d")
+    const chunkSize = 2 ** externalProps.currentProps.scanSize
+    const direction = externalProps.currentProps.direction
+    const numChannels = externalProps.currentProps.color ? 3 : 1
 
     // Slow scan on fast computers
-    await sleep(props.scanBreaks * 10)
+    await sleep(externalProps.currentProps.scanBreaks * 10)
 
     const cut = tf.tidy(() => {
       const myTensor = tf.browser.fromPixels(videoRef, numChannels)
@@ -122,7 +140,8 @@ export default function (props) {
           true
         )
         .div(255)
-      if (props.mirror) resizedTensor = resizedTensor.reverse(1)
+      if (externalProps.currentProps.mirror)
+        resizedTensor = resizedTensor.reverse(1)
       // Never overslice
       const calculatedChunk =
         counter + chunkSize > resizedTensor.shape[direction]
@@ -152,12 +171,12 @@ export default function (props) {
     // clear everything each round
     let endCount
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    ctx.shadowColor = 'red'
+    ctx.shadowColor = "red"
     ctx.shadowBlur = 5
-    ctx.strokeStyle = '#0F0C'
+    ctx.strokeStyle = "#0F0C"
     ctx.lineWidth = chunkSize
     ctx.beginPath()
-    const resultCtx = resultRef.current.getContext('2d')
+    const resultCtx = resultRef.current.getContext("2d")
     if (direction < 1) {
       // draw slice
       resultCtx.drawImage(barRef.current, 0, counter)
@@ -177,9 +196,9 @@ export default function (props) {
     // increase counter
     counter += chunkSize
     // start composite
-    const compositeCtx = compositeRef.current.getContext('2d')
+    const compositeCtx = compositeRef.current.getContext("2d")
     compositeCtx.save()
-    if (props.mirror) {
+    if (externalProps.currentProps.mirror) {
       compositeCtx.translate(compositeRef.current.width, 0)
       compositeCtx.scale(-1, 1)
     }
@@ -197,7 +216,7 @@ export default function (props) {
       requestAnimationFrame(() => {
         scanLine()
       })
-    } else if (props.loops) {
+    } else if (externalProps.currentProps.loops) {
       counter = 0
       warped.dispose()
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -207,42 +226,45 @@ export default function (props) {
     } else {
       // stop recording
       setTimeout(function () {
-        mediaRecorder.stop()
+        mediaRecorder && mediaRecorder.stop()
       }, 2000)
 
       // cleanup
       warped.dispose()
-      detectionRef.current.style.display = 'none'
+      detectionRef.current.style.display = "none"
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-      setScanning('scanned')
-      console.log('DONE', tf.memory().numTensors)
+      setScanning("scanned")
+      console.log("DONE", tf.memory().numTensors)
     }
   }
 
+  // Downloads a PNG
   function savePNGResult() {
     const link = videoLinkRef.current
-    link.setAttribute('download', 'TimeWarpScanMe.png')
+    link.setAttribute("download", "TimeWarpScanMe.png")
     link.setAttribute(
-      'href',
+      "href",
       resultRef.current
-        .toDataURL('image/png')
-        .replace('image/png', 'image/octet-stream')
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream")
     )
     link.click()
     setSaveResult(false)
   }
 
+  // Downloads MP4 of the recorded process
   function saveMP4Result() {
     const videoLink = videoLinkRef.current
-    console.log('video URL', videoURL)
-    videoLink.setAttribute('download', 'TimeWarpScanMe.mp4')
-    videoLink.setAttribute('href', videoURL)
+    console.log("video URL", videoURL)
+    videoLink.setAttribute("download", "TimeWarpScanMe.mp4")
+    videoLink.setAttribute("href", videoURL)
     videoLink.click()
   }
 
+  // Kicks off the scanning process and recording
   async function startScan() {
-    await sleep(props.delayStart * 1000)
-    if (props.record) startRecording()
+    await sleep(externalProps.currentProps.delayStart * 1000)
+    if (externalProps.currentProps.record) startRecording()
     counter = 0
     // clear previous
     clearResult()
@@ -267,8 +289,8 @@ export default function (props) {
   }, [clear])
 
   useEffect(() => {
-    if (saveResult === 'PNG') savePNGResult()
-    if (saveResult === 'MP4') saveMP4Result()
+    if (saveResult === "PNG") savePNGResult()
+    if (saveResult === "MP4") saveMP4Result()
   }, [saveResult])
 
   return (
@@ -278,7 +300,9 @@ export default function (props) {
         id="mystery"
         width="100%"
         autoPlay
-        style={{ transform: `scaleX(${props.mirror ? '-1' : '1'}` }}
+        style={{
+          transform: `scaleX(${externalProps.currentProps.mirror ? "-1" : "1"}`,
+        }}
       ></video>
       <canvas ref={resultRef} id="result"></canvas>
       <canvas ref={detectionRef} id="detection"></canvas>
@@ -286,9 +310,9 @@ export default function (props) {
         <canvas
           ref={compositeRef}
           id="composite"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
         ></canvas>
-        <canvas ref={barRef} id="bar" style={{ display: 'none' }}></canvas>
+        <canvas ref={barRef} id="bar" style={{ display: "none" }}></canvas>
         <a ref={linkRef} id="link"></a>
         <a ref={videoLinkRef} id="videoLink"></a>
       </div>
