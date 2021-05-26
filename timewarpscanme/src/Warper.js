@@ -141,7 +141,7 @@ export default function Warper(props) {
             min={0}
             max={10}
           />
-          <Tooltip title="Slows scan speed">
+          <Tooltip title="Slows scan speed"> 
             <Typography id="discrete-slider" gutterBottom>
               Scan Brakes
             </Typography>
