@@ -3,15 +3,15 @@ export default function Intro(props) {
     <div class="podium">
       <img class="open" src="/open.png" />
       <div class="about">
-        <h3>warp</h3>
+        <h3 className="mega">warp</h3>
         <p>
           Try the popular “Time Warp Scan” directly in your browser and
           instantly share the results with your friends.
         </p>
-        <h3>safe</h3>
+        <h3 className="mega">safely</h3>
         <p>
           This website runs 100% on your machine and does not retain any copy of
-          your images or videos. This site is free and open source.
+          your images or videos. This site is free and open source by Gant Laborde of Infinite Red.
         </p>
 
         <div className="boxbutton" onClick={props.exploreClick}>

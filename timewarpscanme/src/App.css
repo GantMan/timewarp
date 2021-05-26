@@ -84,6 +84,12 @@ body {
   cursor: pointer;
 }
 
+.mega {
+  font-family: 'Goldman', cursive;
+  font-size: 4em;
+  font-style: italic;
+}
+
 .full {
   width: 100%;
   height: 100%;

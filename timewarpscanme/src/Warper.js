@@ -243,7 +243,7 @@ export default function Warper(props) {
           </a>
         </div>
         <span>
-          Get the book:{" "}
+          My book:{" "}
           <a href="https://amzn.to/3dR3vpY">Learning TensorFlow.js</a>
         </span>
         <div>
