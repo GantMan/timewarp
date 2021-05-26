@@ -137,7 +137,7 @@ export default function Warper(props) {
             aria-labelledby="discrete-delay-slider"
             valueLabelDisplay="auto"
             marks
-            style={{ width: "90%" }} 
+            style={{ width: "90%" }}
             min={0}
             max={10}
           />
