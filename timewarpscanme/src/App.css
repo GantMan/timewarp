@@ -24,6 +24,14 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+#overlay {
+  position: relative;
+  width: 75px;
+  margin: 5px -85px;
+  visibility: hidden;
+  opacity: 0.1;
+}
+
 .site {
   display: flex;
   justify-content: center;
@@ -85,7 +93,7 @@ body {
 }
 
 .mega {
-  font-family: 'Goldman', cursive;
+  font-family: "Goldman", cursive;
   font-size: 4em;
   font-style: italic;
 }

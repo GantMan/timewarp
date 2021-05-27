@@ -29,6 +29,7 @@ export default function Scancam(props) {
   const compositeRef = useRef(null)
   const linkRef = useRef(null)
   const videoLinkRef = useRef(null)
+  const overlayRef = useRef(null)
   const [currentVideo, setCurrentVideo] = useState(null)
 
   // Media stream
@@ -195,6 +196,17 @@ export default function Scancam(props) {
       endCount = ctx.canvas.width
     }
     ctx.stroke()
+
+    // Brand the video/image
+    resultCtx.globalAlpha = 0.15
+    resultCtx.drawImage(
+      overlayRef.current,
+      ctx.canvas.width - 85,
+      ctx.canvas.height - 75,
+      75,
+      70
+    )
+    resultCtx.globalAlpha = 1
     // increase counter
     counter += chunkSize
     // start composite
@@ -307,6 +319,7 @@ export default function Scancam(props) {
       ></video>
       <canvas ref={resultRef} id="result"></canvas>
       <canvas ref={detectionRef} id="detection"></canvas>
+      <img ref={overlayRef} src="/twsb2.png" id="overlay" />
       <div>
         <canvas
           ref={compositeRef}
@@ -319,13 +332,7 @@ export default function Scancam(props) {
       </div>
       <div id="playbackVideo" className="modal">
         <div className="modal__content">
-          <video
-            ref={playbackRef}
-            id="playback"
-            controls
-            loop
-            //style={{ display: 'none' }}
-          ></video>
+          <video ref={playbackRef} id="playback" controls loop></video>
           <a href="#" className="modal__close">
             &times;
           </a>
