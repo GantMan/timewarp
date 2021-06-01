@@ -17,6 +17,7 @@ import {
   InputLabel,
 } from "@material-ui/core"
 import { withStyles } from "@material-ui/core/styles"
+import DeviceDrop from "./DeviceDrop"
 
 const StylishSlider = withStyles({
   root: {
@@ -55,8 +56,13 @@ export default function Warper(props) {
   const [scanBreaks, setScanBreaks] = useState(0)
   const [scanSize, setScanSize] = useState(2)
   const [direction, setDirection] = useState(0)
+  const [devices, setDevices] = useState()
+  const [currentDevice, setCurrentDevice] = useState(
+    localStorage.getItem("currentDevice")
+  )
 
   useEffect(() => {
+    listMediaDevices()
     // Firefox check
     if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
       alert(
@@ -64,6 +70,20 @@ export default function Warper(props) {
       )
     }
   }, [])
+
+  async function listMediaDevices() {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    const videoDevices = devices.filter((dev) => dev.kind === "videoinput")
+    setDevices(videoDevices)
+  }
+
+  async function changeDevice(dd) {
+    setCurrentDevice(dd)
+    // store for next time
+    localStorage.setItem("currentDevice", dd)
+    // killVideo()
+    // setupVideo(dd)
+  }
 
   return (
     <div className="full">
@@ -80,6 +100,7 @@ export default function Warper(props) {
           scanBreaks={scanBreaks}
           scanSize={scanSize}
           direction={direction}
+          currentDevice={currentDevice}
         />
         <div id="sidePanel">
           <PanelButton
@@ -198,6 +219,12 @@ export default function Warper(props) {
               <MenuItem value={1}>Left-Right</MenuItem>
             </StyleishSelect>
           </FormControl>
+          <DeviceDrop
+            select={currentDevice}
+            devices={devices}
+            scanning={scanning}
+            onChange={changeDevice}
+          />
           <div className="buttonRow">
             <PanelButton
               mini

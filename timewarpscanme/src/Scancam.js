@@ -73,54 +73,65 @@ export default function Scancam(props) {
   }
 
   // Subscribes to webcam stream and sets up canvas
-  async function setupWebcam() {
+  async function setupWebcam(useDevice) {
+    const deviceId = useDevice ? { exact: useDevice } : null
     const videoRef = mysteryRef.current
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      const webcamStream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          facingMode: "user",
-        },
-      })
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const webcamStream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            deviceId,
+            facingMode: "user",
+          },
+        })
 
-      setLocalStream(webcamStream)
+        setLocalStream(webcamStream)
 
-      // backwards compat
-      if ("srcObject" in videoRef) {
-        videoRef.srcObject = webcamStream
+        // backwards compat
+        if ("srcObject" in videoRef) {
+          videoRef.srcObject = webcamStream
+        } else {
+          videoRef.src = window.URL.createObjectURL(webcamStream)
+        }
+
+        videoRef.onloadedmetadata = () => {
+          // Prep Canvas
+          const detection = detectionRef.current
+          const resultCanv = resultRef.current
+          const composite = compositeRef.current
+          // modify padding/width
+          const imgWidth =
+            (videoRef.videoWidth / videoRef.videoHeight) * videoRef.clientHeight
+          const leftAdjust = (videoRef.clientWidth - imgWidth) / 2 + 10 // 10 for pixel padding
+
+          const imgHeight = videoRef.clientHeight
+          detection.width = imgWidth
+          detection.height = imgHeight
+          detection.style.left = `${leftAdjust}px`
+          resultCanv.width = imgWidth
+          resultCanv.height = imgHeight
+          resultCanv.style.left = `${leftAdjust}px`
+          composite.width = imgWidth
+          composite.height = imgHeight
+        }
       } else {
-        videoRef.src = window.URL.createObjectURL(webcamStream)
+        alert("No webcam - sorry!")
       }
-
-      videoRef.onloadedmetadata = () => {
-        // Prep Canvas
-        const detection = detectionRef.current
-        const resultCanv = resultRef.current
-        const composite = compositeRef.current
-        // modify padding/width
-        const imgWidth =
-          (videoRef.videoWidth / videoRef.videoHeight) * videoRef.clientHeight
-        const leftAdjust = (videoRef.clientWidth - imgWidth) / 2 + 10 // 10 for pixel padding
-
-        const imgHeight = videoRef.clientHeight
-        detection.width = imgWidth
-        detection.height = imgHeight
-        detection.style.left = `${leftAdjust}px`
-        resultCanv.width = imgWidth
-        resultCanv.height = imgHeight
-        resultCanv.style.left = `${leftAdjust}px`
-        composite.width = imgWidth
-        composite.height = imgHeight
-      }
-    } else {
-      alert("No webcam - sorry!")
+    } catch (e) {
+      localStorage.clear()
+      alert(
+        "Something went wrong for this device!  Please try a different device or browser.  This project is open source if you would like to contribute and fix this issue."
+      )
+      console.log(e)
     }
   }
 
   function closeWebcam() {
-    if (localStream) {
-      localStream.getTracks()[0].stop()
-    }
+    localStream &&
+      localStream.getTracks().forEach((track) => {
+        track.stop()
+      })
   }
 
   // Recursive function that scans each line on the webcam
@@ -286,9 +297,14 @@ export default function Scancam(props) {
   }
 
   useEffect(() => {
-    if (!localStream) setupWebcam()
+    if (!localStream) setupWebcam(props.currentDevice)
     return closeWebcam
   }, [localStream])
+
+  useEffect(() => {
+    closeWebcam()
+    setupWebcam(props.currentDevice)
+  }, [props.currentDevice])
 
   useEffect(() => {
     if (scanning === true) startScan()
