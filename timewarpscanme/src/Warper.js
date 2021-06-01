@@ -1,6 +1,6 @@
 // https://material-ui.com/components/switches/
 // https://material-ui.com/components/slider/
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Scancam from "./Scancam"
 import PanelButton from "./PanelButton"
 import {
@@ -55,6 +55,15 @@ export default function Warper(props) {
   const [scanBreaks, setScanBreaks] = useState(0)
   const [scanSize, setScanSize] = useState(2)
   const [direction, setDirection] = useState(0)
+
+  useEffect(() => {
+    // Firefox check
+    if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
+      alert(
+        "Heads up!  For some reason this site doesn't seem to work on Firefox.  The project is open source, I'd love for you to fix this!"
+      )
+    }
+  }, [])
 
   return (
     <div className="full">
@@ -141,7 +150,7 @@ export default function Warper(props) {
             min={0}
             max={10}
           />
-          <Tooltip title="Slows scan speed"> 
+          <Tooltip title="Slows scan speed">
             <Typography id="discrete-slider" gutterBottom>
               Scan Brakes
             </Typography>
@@ -243,8 +252,7 @@ export default function Warper(props) {
           </a>
         </div>
         <span>
-          My book:{" "}
-          <a href="https://amzn.to/3dR3vpY">Learning TensorFlow.js</a>
+          My book: <a href="https://amzn.to/3dR3vpY">Learning TensorFlow.js</a>
         </span>
         <div>
           <a href="https://infinite.red">
