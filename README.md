@@ -92,7 +92,7 @@ yarn start      # dev server on http://localhost:3000
 
 The site is hosted on **AWS Amplify Hosting**, with DNS at name.com. Every push to `main` triggers a build:
 
-- [`amplify.yml`](amplify.yml): build settings (monorepo app root `timewarpscanme`, Node 20, `yarn build`, publishes `build/`)
+- [`amplify.yml`](amplify.yml): build settings (Amazon Linux 2023 image, Node 20, `yarn build` in `timewarpscanme`, publishes `timewarpscanme/build`)
 - [`customHttp.yml`](customHttp.yml): response headers (long-term caching for fingerprinted assets, security headers, camera permissions policy)
 
 ## 🗂️ Project structure

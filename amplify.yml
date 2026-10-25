@@ -1,21 +1,20 @@
-# AWS Amplify Hosting build settings (monorepo format – the app lives in ./timewarpscanme)
+# AWS Amplify Hosting build settings (the app lives in ./timewarpscanme)
 version: 1
-applications:
-  - appRoot: timewarpscanme
-    frontend:
-      phases:
-        preBuild:
-          commands:
-            - nvm install 20
-            - nvm use 20
-            - yarn install --frozen-lockfile
-        build:
-          commands:
-            - yarn build
-      artifacts:
-        baseDirectory: build
-        files:
-          - '**/*'
-      cache:
-        paths:
-          - node_modules/**/*
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 20
+        - nvm use 20
+        - cd timewarpscanme
+        - yarn install --frozen-lockfile
+    build:
+      commands:
+        - yarn build
+  artifacts:
+    baseDirectory: timewarpscanme/build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - timewarpscanme/node_modules/**/*
