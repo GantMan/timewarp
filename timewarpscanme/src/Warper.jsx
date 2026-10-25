@@ -279,6 +279,9 @@ export default function Warper(props) {
           </a>
         </div>
         <span>
+          Built by <a href="https://gantlaborde.com">Gant</a>
+        </span>
+        <span>
           My book: <a href="https://amzn.to/3dR3vpY">Learning TensorFlow.js</a>
         </span>
         <div>
