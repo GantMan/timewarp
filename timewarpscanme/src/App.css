@@ -53,14 +53,99 @@ body {
   margin: 5vh auto;
 }
 
+.site--intro {
+  flex-direction: column;
+  height: auto;
+  min-height: 100vh;
+}
+
+.site--intro .podium {
+  height: 85vh;
+  flex-shrink: 0;
+}
+
+.hero {
+  margin: 0;
+  flex: 0 1 auto;
+  max-width: 75%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
 .open {
   max-height: 100%;
-  max-width: 75%;
-  align-self: flex-end;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+.info {
+  width: 85%;
+  max-width: 800px;
+  margin: 0 auto 5vh;
+  line-height: 1.6;
+}
+
+.info h2 {
+  font-family: "Goldman", cursive;
+  margin-top: 2em;
+}
+
+.info h3 {
+  margin-bottom: 0;
+}
+
+.info p {
+  margin-top: 0.3em;
+}
+
+.credits {
+  margin-top: 3em;
+  text-align: center;
+  opacity: 0.85;
+}
+
+.loading {
+  font-family: "Goldman", cursive;
+  font-size: 1.5em;
+}
+
+@media (max-width: 700px) {
+  .site--intro .podium {
+    flex-direction: column;
+    height: auto;
+    width: 92%;
+    margin-top: 4vw;
+  }
+
+  .hero {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .about {
+    min-width: 0;
+  }
+
+  .about {
+    padding: 0 16px;
+  }
+
+  .mega {
+    font-size: 3em;
+  }
+
+  .info {
+    width: auto;
+    padding: 0 16px;
+  }
 }
 
 .about {
   align-self: flex-end;
+  flex: 1 1 0;
+  min-width: 200px;
 }
 
 .about p {
@@ -69,7 +154,7 @@ body {
   padding-right: 5px;
 }
 
-.about h3 {
+.about h2 {
   margin: 0;
 }
 
@@ -90,6 +175,12 @@ body {
   border: 1px solid #fff;
   min-width: 100px;
   cursor: pointer;
+  display: block;
+  width: calc(100% - 100px);
+  padding: 0;
+  font: inherit;
+  font-weight: bold;
+  letter-spacing: 0.05em;
 }
 
 .mega {

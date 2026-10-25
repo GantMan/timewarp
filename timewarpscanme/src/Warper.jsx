@@ -245,7 +245,7 @@ export default function Warper(props) {
             <PanelButton
               mini
               image="mp4"
-              tooltip="Download MP4 of the scan"
+              tooltip="Download a video of the scan"
               disabled={scanning !== "scanned" || record === false}
               click={() => setSaveResult("MP4")}
             />
@@ -274,7 +274,7 @@ export default function Warper(props) {
               textDecoration: "none",
             }}
           >
-            <img src="./GitHub-Mark-Light-64px.png" height="30" /> &nbsp;Source
+            <img src="/GitHub-Mark-Light-64px.png" height="30" width="30" alt="" /> &nbsp;Source
             Code
           </a>
         </div>
@@ -283,7 +283,7 @@ export default function Warper(props) {
         </span>
         <div>
           <a href="https://infinite.red">
-            <img src="./ir.png" height="40" />
+            <img src="/ir.png" height="40" width="93" alt="Infinite Red" />
           </a>
         </div>
       </div>

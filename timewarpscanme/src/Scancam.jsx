@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
-import * as tf from "@tensorflow/tfjs"
+import * as tf from "@tensorflow/tfjs-core"
+import "@tensorflow/tfjs-backend-webgl"
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -44,15 +45,24 @@ export default function Scancam(props) {
   let counter = 0
   let warped, mediaRecorder, videoURL
 
+  // Prefer real MP4 where the browser can record it, otherwise fall back to WebM
+  const recordingType = ["video/mp4", "video/webm"].find(
+    (type) =>
+      typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type)
+  )
+
   // Creates a new media recorder & starts the recording stream
   function startRecording() {
     // 30fps video
     const compositeStream = compositeRef.current.captureStream(30)
-    mediaRecorder = new MediaRecorder(compositeStream)
+    mediaRecorder = new MediaRecorder(
+      compositeStream,
+      recordingType ? { mimeType: recordingType } : undefined
+    )
 
     let chunks = []
     mediaRecorder.onstop = function (e) {
-      let blob = new Blob(chunks, { type: "video/mp4" })
+      let blob = new Blob(chunks, { type: mediaRecorder.mimeType })
       chunks = []
       const video = playbackRef.current
       videoURL = URL.createObjectURL(blob)
@@ -147,15 +157,17 @@ export default function Scancam(props) {
 
     const cut = tf.tidy(() => {
       const myTensor = tf.browser.fromPixels(videoRef, numChannels)
-      let resizedTensor = tf.image
-        .resizeBilinear(
+      // tfjs-core doesn't register chained ops, so use the functional forms
+      let resizedTensor = tf.div(
+        tf.image.resizeBilinear(
           myTensor,
           [ctx.canvas.clientHeight, ctx.canvas.clientWidth],
           true
-        )
-        .div(255)
+        ),
+        255
+      )
       if (externalProps.currentProps.mirror)
-        resizedTensor = resizedTensor.reverse(1)
+        resizedTensor = tf.reverse(resizedTensor, 1)
       // Never overslice
       const calculatedChunk =
         counter + chunkSize > resizedTensor.shape[direction]
@@ -280,7 +292,8 @@ export default function Scancam(props) {
   // Downloads MP4 of the recorded process
   function saveMP4Result() {
     const videoLink = videoLinkRef.current
-    videoLink.setAttribute("download", "TimeWarpScanMe.mp4")
+    const extension = recordingType === "video/mp4" ? "mp4" : "webm"
+    videoLink.setAttribute("download", `TimeWarpScanMe.${extension}`)
     videoLink.setAttribute("href", currentVideo)
     videoLink.click()
   }
@@ -335,7 +348,7 @@ export default function Scancam(props) {
       ></video>
       <canvas ref={resultRef} id="result"></canvas>
       <canvas ref={detectionRef} id="detection"></canvas>
-      <img ref={overlayRef} src="/twsb2.png" id="overlay" />
+      <img ref={overlayRef} src="/twsb2.webp" id="overlay" alt="" />
       <div>
         <canvas
           ref={compositeRef}

@@ -10,6 +10,7 @@ export default function (props) {
     <Tooltip title={props.tooltip}>
       <img
         src={`/${props.image}.png`}
+        alt={props.tooltip}
         className={looks.join(' ')}
         onClick={() => {
           if (!props.disabled) props.click()
